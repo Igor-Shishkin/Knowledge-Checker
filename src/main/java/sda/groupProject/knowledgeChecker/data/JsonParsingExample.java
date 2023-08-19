@@ -8,55 +8,68 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Scanner;
 
 public class JsonParsingExample {
-    public static void main(String[] args) {
-        try {
-            URL url = new URL("https://public.andret.eu/questions.json");
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
+    public static void  main(String[] args) throws IOException {
+        // More on java.net.URL Class in Java here: https://www.geeksforgeeks.org/java-net-url-class-in-java/
+        URL questionsJsonURL = new URL("https://public.andret.eu/questions.json");
+        // More on Java.net.HttpURLConnection Class in Java here: https://www.geeksforgeeks.org/java-net-httpurlconnection-class-java/
+        HttpURLConnection connection = (HttpURLConnection) questionsJsonURL.openConnection();
+        connection.setRequestMethod("GET");
+        int responseCode = connection.getResponseCode();
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            StringBuilder response = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                response.append(line);
+            }
+            reader.close();
 
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                StringBuilder response = new StringBuilder();
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    response.append(line);
-                }
-                reader.close();
+            JSONArray jsonArray = new JSONArray(response.toString());
 
-                // Parse the JSON array
-                JSONArray jsonArray = new JSONArray(response.toString());
+            Scanner scanner = new Scanner(System.in);
 
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                    int id = jsonObject.getInt("id");
-                    String advancement = jsonObject.getString("advancement");
-                    String category = jsonObject.getString("category");
+                String advancement = jsonObject.getString("advancement");
+                String category = jsonObject.getString("category");
+
+                // Choose the specific advancement and category you want to display
+                if (advancement.equals("medium") && category.equals("JAVA_LANGUAGE")) {
                     String text = jsonObject.getString("text");
-
                     JSONArray answersArray = jsonObject.getJSONArray("answers");
+
+                    System.out.println("Question: " + text);
                     for (int j = 0; j < answersArray.length(); j++) {
                         JSONObject answerObject = answersArray.getJSONObject(j);
                         String answerText = answerObject.getString("text");
-                        boolean isCorrect = answerObject.getBoolean("correct");
-                        String explanation = answerObject.getString("explanation");
-
-                        System.out.println("Answer Text: " + answerText);
-                        System.out.println("Is Correct: " + isCorrect);
-                        System.out.println("Explanation: " + explanation);
-                        System.out.println();
+                        System.out.println((j + 1) + ". " + answerText);
                     }
-                }
-            } else {
-                System.out.println("HTTP request failed with response code: " + responseCode);
-            }
 
-            connection.disconnect();
-        } catch (IOException e) {
-            e.printStackTrace();
+                    System.out.print("Enter your answer (number): ");
+                    int userAnswer = scanner.nextInt();
+
+                    JSONObject userAnswerObject = answersArray.getJSONObject(userAnswer - 1);
+                    boolean isCorrect = userAnswerObject.getBoolean("correct");
+                    String explanation = userAnswerObject.getString("explanation");
+
+                    if (isCorrect) {
+                        System.out.println("Correct!");
+                    } else {
+                        System.out.println("Incorrect.");
+                    }
+                    System.out.println("Explanation: " + explanation);
+                    System.out.println();
+                }
+            }
+            scanner.close();
+        } else {
+            System.out.println("HTTP request failed with response code: " + responseCode);
         }
+
+        connection.disconnect();
     }
 }
