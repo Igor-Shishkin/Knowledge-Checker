@@ -1,9 +1,13 @@
 package sda.groupProject.knowledgeChecker.graphicalInterface;
 
+import sda.groupProject.knowledgeChecker.data.Advancement;
+
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class GreetingWindow extends JFrame {
+public class GreetingWindow extends JFrame implements ActionListener {
     static int CURRENT_LEVEL;
     static String CURRENT_CATEGORY;
 
@@ -68,6 +72,7 @@ public class GreetingWindow extends JFrame {
         startButton.setFont(new Font(null, Font.BOLD, 40));
         startButton.setBackground(Color.GREEN);
         startButton.setForeground(Color.WHITE);
+        startButton.addActionListener(this);
 
         greetingLabel = new JLabel
                 ("<html>Greeting!<br>Are you ready to check your knowledge?"
@@ -119,4 +124,14 @@ public class GreetingWindow extends JFrame {
 
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource()==startButton) {
+            Advancement advancement = (levelBasicRadioButton.isSelected()) ? Advancement.BASIC
+                    : (levelMediumRadioButton.isSelected()) ? Advancement.MEDIUM
+                    : Advancement.EXPERT;
+            new GameWindow(categoriesComboBox.getSelectedIndex(), advancement);
+            dispose();
+        }
+    }
 }
