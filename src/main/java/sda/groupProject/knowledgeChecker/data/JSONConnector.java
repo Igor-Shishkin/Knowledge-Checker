@@ -11,21 +11,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class JSONConnector {
     public List<Question> questionArrayList = new ArrayList<>();
+    public Map<String, Integer> categoryMap;
+
     public JSONConnector() throws IOException {
         // Creating a jsonArray from https://public.andret.eu/questions.json
         URL questionsJsonURL = new URL("https://public.andret.eu/questions.json");
         HttpURLConnection connection = (HttpURLConnection) questionsJsonURL.openConnection();
-            //connection.setRequestMethod("GET");
-            //int responseCode = connection.getResponseCode();
+        //connection.setRequestMethod("GET");
+        //int responseCode = connection.getResponseCode();
         JSONTokener jsonTokener = new JSONTokener(connection.getInputStream());
         JSONArray jsonArray = new JSONArray(jsonTokener);
 
         // Iterating through JSONArray to assign ID's to each unique category value.
         int idForCategory = 1;
-        Map<String, Integer> categoryMap = new HashMap<>();
+        categoryMap = new HashMap<>();
         for (int i = 0; i < jsonArray.length(); i++) {
             JSONObject jsonObject = jsonArray.getJSONObject(i);
             String categoryName = jsonObject.getString("category");
@@ -46,7 +49,7 @@ public class JSONConnector {
             Advancement questionAdvancement = (jsonObject.getString("advancement").equals("medium"))
                     ? Advancement.MEDIUM :
                     (jsonObject.getString("advancement").equals("basic"))
-                    ? Advancement.BASIC : Advancement.EXPERT;
+                            ? Advancement.BASIC : Advancement.EXPERT;
 
             // creating an object of type Category and assigning value of that JSONObject's "category" key-value pair
             String categoryName = jsonObject.getString("category");
@@ -62,7 +65,7 @@ public class JSONConnector {
             // Iterating through that created array
             for (int j = 0; j < JSONArrayAnswers.length(); j++) {
                 // creating a JSONObject with key-value pairs for each entry in that array
-                JSONObject jsonAnswerObject = JSONArrayAnswers.getJSONObject(i);
+                JSONObject jsonAnswerObject = JSONArrayAnswers.getJSONObject(j);
                 // assigning values of newly created object's "text", "correct", and "explanation" key-value pairs
                 String text = jsonAnswerObject.getString("text");
                 boolean correct = jsonAnswerObject.getBoolean("correct");
@@ -79,18 +82,26 @@ public class JSONConnector {
                     questionListOfAnswers));
         }
     }
-//    int setIdCategory(String categoryName) {
-//         if (questionArrayList.stream()
-//                .anyMatch(question -> question.category().getCategoryName().equals(categoryName))) {
-//             for (Question question : questionArrayList) {
-//                 if (question.category().getCategoryName().equals(categoryName)) {
-//                     return question.category().getCategoryId();
-//                 }
-//             }
-//         } else {
-//             idForCategory++;
-//             return idForCategory;
-//         };
-//          return  0;
-//    }
+
+    public ArrayList<Question> getListOfQuestions() {
+        return (ArrayList<Question>) questionArrayList;
+    }
+
+    public String[] getCategoryNames () {
+        String[] categoryNames = new String[categoryMap.size()];
+        int i = 0;
+        for(Map.Entry<String, Integer> entry : categoryMap.entrySet()) {
+            categoryNames[i++] = entry.getKey();
+        }
+        return categoryNames;
+    }
+
+    public ArrayList<Question> getListOfQuestions(Advancement level, Category category) {
+        return (ArrayList<Question>) questionArrayList
+                .stream()
+                .filter(question -> question.advancement().equals(level))
+                .filter(question -> question.category().equals(category))
+                .collect(Collectors.toList());
+    }
+
 }
