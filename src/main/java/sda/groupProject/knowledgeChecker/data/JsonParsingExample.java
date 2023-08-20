@@ -2,12 +2,15 @@ package sda.groupProject.knowledgeChecker.data;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class JsonParsingExample {
@@ -19,23 +22,29 @@ public class JsonParsingExample {
         connection.setRequestMethod("GET");
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-            StringBuilder response = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                response.append(line);
-            }
-            reader.close();
 
-            JSONArray jsonArray = new JSONArray(response.toString());
+            JSONTokener jsonTokener = new JSONTokener(connection.getInputStream());
+//            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+//            StringBuilder response = new StringBuilder();
+//            String line;
+//            while ((line = reader.readLine()) != null) {
+//                response.append(line);
+//            }
+//            reader.close();
+
+            JSONArray jsonArray = new JSONArray(jsonTokener);
+
 
             Scanner scanner = new Scanner(System.in);
+
+            List<Question> question = new ArrayList<>();
 
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                String advancement = jsonObject.getString("advancement");
-                String category = jsonObject.getString("category");
+                String advancement = jsonObject.getString("advancement"); // - ENUM
+                String category = jsonObject.getString("category"); // OBJECT
+
 
                 // Choose the specific advancement and category you want to display
                 if (advancement.equals("medium") && category.equals("JAVA_LANGUAGE")) {
