@@ -18,7 +18,7 @@ public class Main
     public static void main( String[] args ) throws IOException {
 
         JSONConnector connect = new JSONConnector();
-        System.out.println(Arrays.toString(new ArrayList[]{connect.getListOfQuestions(Advancement.MEDIUM, new Category("JAVA_LANGUAGE", 1))}));
-        //new GreetingWindow();
+//        System.out.println(Arrays.toString(new ArrayList[]{connect.getListOfQuestions(Advancement.MEDIUM, new Category("JAVA_LANGUAGE", 1))}));
+        new GreetingWindow(connect);
     }
 }
