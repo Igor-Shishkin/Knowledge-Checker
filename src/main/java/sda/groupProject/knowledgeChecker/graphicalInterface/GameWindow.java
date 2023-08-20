@@ -88,7 +88,7 @@ public class GameWindow extends JFrame implements ActionListener {
         c.insets = new Insets(3,5,3,5);
         c.gridwidth = 2;
         for (int i = 0; i < listOfAnswers.size(); i++) {
-            answerRadioButtons.add(new JRadioButton(listOfAnswers.get(i).getText()));
+            answerRadioButtons.add(new JRadioButton(listOfAnswers.get(i).text()));
             answersGroupButton.add(answerRadioButtons.get(i));
             c.gridy = i+1;
             questionPanel.add(answerRadioButtons.get(i), c);
@@ -128,7 +128,7 @@ public class GameWindow extends JFrame implements ActionListener {
         if (e.getSource()==doneButton) {
             for (int i = 0; i < answerRadioButtons.size(); i++) {
                 if (answerRadioButtons.get(i).isSelected()) {
-                    if (listOfAnswers.get(i).isCorrect()) {
+                    if (listOfAnswers.get(i).correct()) {
                         questionPanel.setBackground(new Color(0xCDFFD7));
                         isRightAnswer.setText("RIGHT");
                         isRightAnswer.setForeground(Color.GREEN);
