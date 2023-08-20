@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class GameWindow extends JFrame implements ActionListener {
@@ -20,14 +21,16 @@ public class GameWindow extends JFrame implements ActionListener {
     int score;
     ButtonGroup answersGroupButton;
     List<Answer> listOfAnswers;
+    String[] chosenCategory;
 
 
-    GameWindow(int idCategory, Advancement advancement) {
-        this.idCategory = idCategory;
+    GameWindow(String[] chosenCategory, Advancement advancement) {
+        this.chosenCategory = chosenCategory;
         this.advancement = advancement;
         setQuestionPanel();
 
-
+        System.out.println(Arrays.toString(chosenCategory));
+        System.out.println(advancement);
 
 
 
