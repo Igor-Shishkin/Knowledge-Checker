@@ -23,7 +23,7 @@ public class JsonParsingExample {
         int responseCode = connection.getResponseCode();
         if (responseCode == HttpURLConnection.HTTP_OK) {
 
-            JSONTokener jsonTokener = new JSONTokener(connection.getInputStream());
+        JSONTokener jsonTokener = new JSONTokener(connection.getInputStream());
 //            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 //            StringBuilder response = new StringBuilder();
 //            String line;

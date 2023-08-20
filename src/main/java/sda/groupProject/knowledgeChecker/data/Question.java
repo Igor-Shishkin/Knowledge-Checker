@@ -5,12 +5,57 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 public class Question {
 
-    public static void  main(String[] args) throws IOException {
-        // More on java.net.URL Class in Java here: https://www.geeksforgeeks.org/java-net-url-class-in-java/
-        URL questionsJsonURL = new URL("https://public.andret.eu/questions.json");
-        // More on Java.net.HttpURLConnection Class in Java here: https://www.geeksforgeeks.org/java-net-httpurlconnection-class-java/
-        HttpURLConnection connection = (HttpURLConnection) questionsJsonURL.openConnection();
-        connection.setRequestMethod("GET");
+    private int id;
+    private Advancement advancement;
+    private Category category;
+    private String text;
+    private Answer[] answers;
 
+    public Question(int id, Advancement advancement, Category category, String text, Answer[] answers) {
+        this.id = id;
+        this.advancement = advancement;
+        this.category = category;
+        this.text = text;
+        this.answers = answers;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Advancement getAdvancement() {
+        return advancement;
+    }
+
+    public void setAdvancement(Advancement advancement) {
+        this.advancement = advancement;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public Answer[] getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(Answer[] answers) {
+        this.answers = answers;
     }
 }
