@@ -3,9 +3,10 @@ package sda.groupProject.knowledgeChecker.graphicalInterface;
 import javax.swing.*;
 import java.awt.*;
 
-public class MainWindow extends JFrame {
-    static int WIDTH_PANE = 450;
-    static int HEIGHT_PANE = 320;
+public class GreetingWindow extends JFrame {
+    static int CURRENT_LEVEL;
+    static String CURRENT_CATEGORY;
+
     JLayeredPane mainPane;
     JPanel greetingPanel, questionPanel, resultPanel;
     JButton startButton, doneButton, nextButton, exitButton;
@@ -14,7 +15,7 @@ public class MainWindow extends JFrame {
     JComboBox<String> categoriesComboBox;
     JLabel greetingLabel;
 
-    public MainWindow() {
+    public GreetingWindow() {
 
 
         setGreetingPanel();
@@ -28,18 +29,21 @@ public class MainWindow extends JFrame {
 
         setFontForComponents(this);
 
-        this.setSize(new Dimension(WIDTH_PANE, HEIGHT_PANE));
+//        this.setSize(new Dimension(WIDTH_PANE, HEIGHT_PANE));
+        this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
-        this.setTitle("CHECK TESTER");
+        this.setTitle("CHECK YOUR KNOWLEDGE");
         this.setVisible(true);
     }
 
     private void setFontForComponents(Container container) {
         for (Component component : container.getComponents()) {
-            if (component instanceof JLabel ||
-                    component instanceof JRadioButton || component instanceof JComboBox<?>) {
+            if (component instanceof JLabel || component instanceof JComboBox<?>) {
                 component.setFont(ConstantsForStyle.MAIN_FONT);
+            }
+            if (component instanceof JRadioButton) {
+                component.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 19));
             }
             if (component instanceof Container) {
                 setFontForComponents((Container) component);
@@ -58,10 +62,10 @@ public class MainWindow extends JFrame {
         levelGroupButton.add(levelExpertRadioButton);
 
         categoriesComboBox = new JComboBox<>(new String[]{"JAVA_LANGUAGE", "GENERAL",
-                    "DESIGN_PATTERNS", "SPRING"});
+                    "DESIGN_PATTERNS", "SPRING", "ALL"});
 
         startButton = new JButton("START!");
-        startButton.setFont(new Font(null, Font.BOLD, 30));
+        startButton.setFont(new Font(null, Font.BOLD, 40));
         startButton.setBackground(Color.GREEN);
         startButton.setForeground(Color.WHITE);
 
@@ -94,10 +98,12 @@ public class MainWindow extends JFrame {
         c.gridy = 3;
         greetingPanel.add(levelExpertRadioButton, c);
 
+        c.insets = new Insets(7,5,7,5);
         c.gridx = 0;
         c.gridy = 4;
         greetingPanel.add(new JSeparator(), c);
 
+        c.insets = new Insets(5,5,15,5);
         c.gridx = 0;
         c.gridy = 5;
         greetingPanel.add(categoriesComboBox, c);
@@ -107,7 +113,7 @@ public class MainWindow extends JFrame {
         c.gridx = 2;
         c.gridy = 1;
         c.gridwidth = 2;
-        c.gridheight = 4;
+        c.gridheight = 5;
         greetingPanel.add(startButton, c);
 
 
