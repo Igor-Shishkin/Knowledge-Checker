@@ -197,6 +197,9 @@ public class GreetingWindow extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource()==startButton) {
+            int quantityQuestions = (quantityQuestion5RadioButton.isSelected()) ? 5
+                    : (quantityQuestion10RadioButton.isSelected()) ? 10
+                    : 15;
             int quantityChosenCategories = 0;
             for (JCheckBox checkBox : categoriesCheckBoxList) {
                 quantityChosenCategories = (checkBox.isSelected())
@@ -212,7 +215,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
                     chosenCategory[index++] = checkBox.getText();
                 }
             }
-            new GameWindow(chosenCategory, advancement);
+            new GameWindow(chosenCategory, advancement, quantityQuestions, connect);
             dispose();
         }
         if (e.getSource()==levelBasicRadioButton ||
