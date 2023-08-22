@@ -21,7 +21,7 @@ public class GameWindow extends JFrame implements ActionListener {
     List<JRadioButton> answerRadioButtons;
     JLabel questionLabel, isRightAnswer, rightExplanation, chosenExplanation;
     Advancement advancement;
-    int score, currentNumber = 0, chosenAnswer,  MAX_NUMBER_OF_QUESTION;
+    int score, currentNumber = 0, chosenAnswer, MAX_NUMBER_OF_QUESTION;
     ButtonGroup answersGroupButton;
     String[] chosenCategory;
     JSONConnector connect;
@@ -45,7 +45,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
 //        this.setSize(new Dimension(WIDTH_PANE, HEIGHT_PANE));
         this.pack();
-        this.setLayout(new GridLayout(1,1,10,10));
+        this.setLayout(new GridLayout(1, 1, 10, 10));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setTitle("CHECK YOUR KNOWLEDGE");
@@ -56,7 +56,7 @@ public class GameWindow extends JFrame implements ActionListener {
         listOfQuestions = connect.getListOfQuestions();
         listAnswersForTheQuestion = listOfQuestions.get(0).answers();
 
-        if (MAX_NUMBER_OF_QUESTION>listOfQuestions.size()) {
+        if (MAX_NUMBER_OF_QUESTION > listOfQuestions.size()) {
             MAX_NUMBER_OF_QUESTION = listOfQuestions.size();
             String message = String.format("There are only %d questions for the parameter you have chosen.",
                     MAX_NUMBER_OF_QUESTION);
@@ -88,11 +88,11 @@ public class GameWindow extends JFrame implements ActionListener {
 
         progressBar = new JProgressBar(0, MAX_NUMBER_OF_QUESTION);
         progressBar.setStringPainted(true);
-        progressBar.setFont(new Font("MV Boli",Font.BOLD,25));
+        progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
         progressBar.setForeground(Color.red);
         progressBar.setBackground(Color.black);
         progressBar.setValue(0);
-        progressBar.setString("DONE: 0 from "+listOfQuestions.size());
+        progressBar.setString("DONE: 0 from " + listOfQuestions.size());
 
 
         questionPanel = new JPanel(new GridBagLayout());
@@ -115,25 +115,25 @@ public class GameWindow extends JFrame implements ActionListener {
 
         c.insets = new Insets(3, 5, 3, 5);
         c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size()+1;
+        c.gridy = listAnswersForTheQuestion.size() + 1;
         c.gridheight = 1;
         c.gridwidth = 10;
         questionPanel.add(separator1, c);
 
         c.insets = new Insets(3, 5, 3, 5);
         c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size()+2;
+        c.gridy = listAnswersForTheQuestion.size() + 2;
         c.gridwidth = 10;
         c.gridheight = 3;
         questionPanel.add(explanationPanel, c);
 
         c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size()+6;
+        c.gridy = listAnswersForTheQuestion.size() + 6;
         c.gridwidth = 10;
         c.gridheight = 1;
         questionPanel.add(separator2, c);
 
-        c.gridy = listAnswersForTheQuestion.size()+7;
+        c.gridy = listAnswersForTheQuestion.size() + 7;
         c.gridwidth = 10;
         c.gridheight = 1;
         questionPanel.add(progressBar, c);
@@ -229,10 +229,15 @@ public class GameWindow extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+
+
         if (e.getSource() == doneButton) {
             doneButton.setVisible(false);
             doneButton.setEnabled(false);
             currentNumber++;
+            if (currentNumber == MAX_NUMBER_OF_QUESTION) {
+                nextButton.setText("SEE RESULT");
+            }
             progressBar.setValue(currentNumber);
             String progress = String.format("DONE: %d from %d", currentNumber, MAX_NUMBER_OF_QUESTION);
             progressBar.setString(progress);
@@ -257,10 +262,10 @@ public class GameWindow extends JFrame implements ActionListener {
                         answersPanel.getWidth() + nextButton.getWidth(),
                         Math.max(questionLabel.getWidth(), explanationPanel.getWidth())) + 150;
                 int height = answersPanel.getHeight() + explanationPanel.getHeight() +
-                        questionLabel.getHeight() + progressBar.getHeight() +230;
+                        questionLabel.getHeight() + progressBar.getHeight() + 230;
                 out.println(length + "   " + height);
 //                questionPanel.repaint(0,0,length, height);
-                this.setSize(length, height);
+                this.setPreferredSize(new Dimension(length, height));
 //                this.repaint(0,0,length,height);
             } else {
                 isRightAnswer.setText("WRONG");
@@ -271,7 +276,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
                 doneButton.setVisible(false);
                 nextButton.setVisible(true);
-                for (Answer answer : listAnswersForTheQuestion){
+                for (Answer answer : listAnswersForTheQuestion) {
                     if (answer.correct()) {
                         rightExplanation.setText(answer.explanation());
                         answerRadioButtons.get(listAnswersForTheQuestion.indexOf(answer)).setForeground(Color.GREEN);
@@ -289,53 +294,59 @@ public class GameWindow extends JFrame implements ActionListener {
                         answersPanel.getWidth() + nextButton.getWidth(),
                         Math.max(questionLabel.getWidth(), explanationPanel.getWidth())) + 150;
                 int height = answersPanel.getHeight() + explanationPanel.getHeight() +
-                        questionLabel.getHeight() + progressBar.getHeight() +250;
+                        questionLabel.getHeight() + progressBar.getHeight() + 250;
                 out.println(length + "   " + height);
 //                questionPanel.repaint(0,0,length, height);
-                this.setSize(length, height);
+                this.setPreferredSize(new Dimension(length, height));
 //                this.repaint(0,0,length,height);
             }
         }
         if (e.getSource() == nextButton) {
-            isRightAnswer.setVisible(false);
-            nextButton.setVisible(false);
-            doneButton.setVisible(true);
-            questionPanel.remove(answersPanel);
-            answerRadioButtons.get(chosenAnswer).setForeground(Color.BLACK);
-            explanationPanel.setVisible(false);
-            chosenExplanation.setVisible(false);
-            separator1.setVisible(false);
+            if (currentNumber >= MAX_NUMBER_OF_QUESTION) {
+                nextButton.setText("SEE RESULT");
+                new ResultWindow(connect, score, MAX_NUMBER_OF_QUESTION, advancement, chosenCategory);
+                dispose();
+            } else {
+                isRightAnswer.setVisible(false);
+                nextButton.setVisible(false);
+                doneButton.setVisible(true);
+                questionPanel.remove(answersPanel);
+                answerRadioButtons.get(chosenAnswer).setForeground(Color.BLACK);
+                explanationPanel.setVisible(false);
+                chosenExplanation.setVisible(false);
+                separator1.setVisible(false);
 
 
-            for (int i = listAnswersForTheQuestion.size()-1; i >=0; i--) {
-                listAnswersForTheQuestion.remove(listAnswersForTheQuestion.get(i));
-                answerRadioButtons.remove(answerRadioButtons.get(i));
-            }
-            Question question = listOfQuestions.get(currentNumber);
-            listAnswersForTheQuestion = question.answers();
+                for (int i = listAnswersForTheQuestion.size() - 1; i >= 0; i--) {
+                    listAnswersForTheQuestion.remove(listAnswersForTheQuestion.get(i));
+                    answerRadioButtons.remove(answerRadioButtons.get(i));
+                }
+                Question question = listOfQuestions.get(currentNumber);
+                listAnswersForTheQuestion = question.answers();
 
 
-            out.println(listAnswersForTheQuestion.toString());
+                out.println(listAnswersForTheQuestion.toString());
 
-            setElementsToAnswerPanel();
-            c.insets = new Insets(5, 10, 3, 5);
-            c.gridx = 0;
-            c.gridy = 1;
-            c.gridheight = listAnswersForTheQuestion.size();
-            c.gridwidth = 9;
-            questionPanel.add(answersPanel, c);
+                setElementsToAnswerPanel();
+                c.insets = new Insets(5, 10, 3, 5);
+                c.gridx = 0;
+                c.gridy = 1;
+                c.gridheight = listAnswersForTheQuestion.size();
+                c.gridwidth = 9;
+                questionPanel.add(answersPanel, c);
 
-            questionLabel.setText(question.text());
+                questionLabel.setText(question.text());
 
-            questionPanel.repaint();
-            int length = Math.max(
-                    answersPanel.getWidth() + nextButton.getWidth(),
-                    Math.max(questionLabel.getWidth(), explanationPanel.getWidth())) + 150;
-            int height = answersPanel.getHeight() + explanationPanel.getHeight() +
-                    questionLabel.getHeight() + progressBar.getHeight() +150;
-            out.println(length + "   " + height);
+                questionPanel.repaint();
+                int length = Math.max(
+                        answersPanel.getWidth() + nextButton.getWidth(),
+                        Math.max(questionLabel.getWidth(), explanationPanel.getWidth())) + 150;
+                int height = answersPanel.getHeight() + explanationPanel.getHeight() +
+                        questionLabel.getHeight() + progressBar.getHeight() + 150;
+                out.println(length + "   " + height);
 //                questionPanel.repaint(0,0,length, height);
-            this.setSize(length, height);
+                this.setPreferredSize(new Dimension(length, height));
+            }
         }
     }
 }
