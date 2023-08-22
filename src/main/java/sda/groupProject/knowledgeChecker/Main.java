@@ -18,7 +18,7 @@ public class Main
         String output = HTMLConverter.changeTextToHTML(input, lineLength);
         System.out.println(output);
 
-        // Testing JSONConnector class methods
+        // Testing getListOfQuestions method
         JSONConnector connect = new JSONConnector();
 
         String[] selectedCategories = {"GENERAL", "DESIGN_PATTERNS"};
@@ -26,10 +26,15 @@ public class Main
         Advancement selectedLevel = Advancement.MEDIUM;
         int numberOfQuestions = 2;
 
-        List<Question> filteredQuestions = connect.getListOfQuestions(selectedLevel, selectedCategories2, numberOfQuestions);
+        List<Question> filteredQuestions = connect.getListOfQuestions(selectedLevel, selectedCategories, numberOfQuestions);
 
         System.out.println(filteredQuestions);
 
-//        new GreetingWindow(connect);
+        // Testing getListOfQuestionsWithCode method / effectively if JSONConnector can handle "code" in the source file
+        List<Question> filteredQuestions2 = connect.getListOfQuestionsWithCode();
+        System.out.println(filteredQuestions2);
+
+        // Testing GreetingWindow class
+        // new GreetingWindow(connect);
     }
 }

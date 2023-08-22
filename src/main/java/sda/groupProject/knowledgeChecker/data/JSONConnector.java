@@ -55,6 +55,10 @@ public class JSONConnector {
             // creating an object of type String and assigning value of that JSONObject's "text" key-value pair
             String questionText = jsonObject.getString("text");
 
+            // creating an object of type String and assigning value of that JSONObject's "code" key-value pair
+            String questionCode = jsonObject.has("code") ? jsonObject.getString("code") : null;
+
+
             // creating an array and assigning values of that JSONObject's "answers" key-value pair
             JSONArray JSONArrayAnswers = jsonObject.getJSONArray("answers");
             // creating a list of class type Answer
@@ -76,6 +80,7 @@ public class JSONConnector {
                     questionAdvancement,
                     questionCategory,
                     questionText,
+                    questionCode,
                     questionListOfAnswers));
         }
     }
@@ -107,6 +112,17 @@ public class JSONConnector {
         return new ArrayList<>(filteredQuestions.stream()
                 .limit(numberOfQuestions)
                 .collect(Collectors.toList()));
+    }
+
+    public ArrayList<Question> getListOfQuestionsWithCode() {
+        List<Question> filteredQuestions = questionArrayList
+                .stream()
+                .filter(question -> question.code() != null)
+                .collect(Collectors.toList());
+
+        Collections.shuffle(filteredQuestions);
+
+        return new ArrayList<>(filteredQuestions);
     }
 
 }
