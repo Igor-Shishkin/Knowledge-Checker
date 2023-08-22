@@ -21,13 +21,12 @@ public class Main
         // Testing JSONConnector class methods
         JSONConnector connect = new JSONConnector();
 
-        List<String> selectedCategories = Arrays.asList("GENERAL", "DESIGN_PATTERNS");
-        //List<String> selectedCategories = Arrays.asList("JAVA_LANGUAGE");
+        String[] selectedCategories = {"GENERAL", "DESIGN_PATTERNS"};
+        String[] selectedCategories2 = {"DESIGN_PATTERNS"};
         Advancement selectedLevel = Advancement.MEDIUM;
-        boolean randomSelection = true;
         int numberOfQuestions = 2;
 
-        List<Question> filteredQuestions = connect.getListOfQuestions(selectedLevel, selectedCategories, randomSelection, numberOfQuestions);
+        List<Question> filteredQuestions = connect.getListOfQuestions(selectedLevel, selectedCategories2, numberOfQuestions);
 
         System.out.println(filteredQuestions);
 
