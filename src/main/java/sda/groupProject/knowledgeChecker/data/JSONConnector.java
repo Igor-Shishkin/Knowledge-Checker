@@ -7,11 +7,7 @@ import org.json.JSONTokener;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class JSONConnector {
@@ -59,6 +55,10 @@ public class JSONConnector {
             // creating an object of type String and assigning value of that JSONObject's "text" key-value pair
             String questionText = jsonObject.getString("text");
 
+            // creating an object of type String and assigning value of that JSONObject's "code" key-value pair
+            String questionCode = jsonObject.has("code") ? jsonObject.getString("code") : null;
+
+
             // creating an array and assigning values of that JSONObject's "answers" key-value pair
             JSONArray JSONArrayAnswers = jsonObject.getJSONArray("answers");
             // creating a list of class type Answer
@@ -80,6 +80,7 @@ public class JSONConnector {
                     questionAdvancement,
                     questionCategory,
                     questionText,
+                    questionCode,
                     questionListOfAnswers));
         }
     }
@@ -97,88 +98,31 @@ public class JSONConnector {
         return categoryNames;
     }
 
-    public ArrayList<Question> getListOfQuestions(Advancement level, Category category) {
-        return (ArrayList<Question>) questionArrayList
-                .stream()
-                .filter(question -> question.advancement().equals(level))
-                .filter(question -> question.category().equals(category))
-                .collect(Collectors.toList());
-    }
+    public ArrayList<Question> getListOfQuestions(Advancement level, String[] categoryNames, int numberOfQuestions) {
+        List<String> categoryNamesList = Arrays.asList(categoryNames);
 
-    public ArrayList<Question> getListOfQuestions(Advancement level, List<String> categoryNames) {
-        return (ArrayList<Question>) questionArrayList
-                .stream()
-                .filter(question -> question.advancement().equals(level))
-                .filter(question -> categoryNames.contains(question.category().categoryName()))
-                .collect(Collectors.toList());
-    }
-
-    public ArrayList<Question> getListOfQuestions(Advancement level, List<String> categoryNames,
-                                                  boolean randomSelection) {
         List<Question> filteredQuestions = questionArrayList
                 .stream()
                 .filter(question -> question.advancement().equals(level))
-                .filter(question -> categoryNames.contains(question.category().categoryName()))
+                .filter(question -> categoryNamesList.contains(question.category().categoryName()))
                 .collect(Collectors.toList());
 
-        if (randomSelection) {
-            Collections.shuffle(filteredQuestions);
-        }
+        Collections.shuffle(filteredQuestions);
+
+        return new ArrayList<>(filteredQuestions.stream()
+                .limit(numberOfQuestions)
+                .collect(Collectors.toList()));
+    }
+
+    public ArrayList<Question> getListOfQuestionsWithCode() {
+        List<Question> filteredQuestions = questionArrayList
+                .stream()
+                .filter(question -> question.code() != null)
+                .collect(Collectors.toList());
+
+        Collections.shuffle(filteredQuestions);
 
         return new ArrayList<>(filteredQuestions);
     }
-
-    public ArrayList<Question> getListOfQuestions(Advancement level, List<String> categoryNames,
-                                                  boolean randomSelection, int numberOfQuestions) {
-        List<Question> filteredQuestions = questionArrayList
-                .stream()
-                .filter(question -> question.advancement().equals(level))
-                .filter(question -> categoryNames.contains(question.category().categoryName()))
-                .collect(Collectors.toList());
-
-        if (randomSelection) {
-            Collections.shuffle(filteredQuestions);
-        }
-
-        if (numberOfQuestions >= filteredQuestions.size()) {
-            return new ArrayList<>(filteredQuestions);
-        } else {
-            return new ArrayList<>(filteredQuestions.subList(0, numberOfQuestions));
-        }
-    }
-
-
-/*    Артур,
-    немного поразмыслил и подумал, что было бы круто, чтобы пользователь мог выбрать сразу несколько категорий.
-    Это значит, что у тебя метод будет выглядеть вот так: getRandomListOfQuestions(Advantecent level, String[] categories)
-    И тебе в метод данные пойдут в такм виде (пример):
-    Advantecent advantecent = Advantecent.BASIC;
-    String[] categories = {"Java", "Spring", "Data"}; (edited)
-            8:17
-    соответственно нужно отфильтровать по уровню и выловить не одну категорию, а все
-8:17
-    В категории будет categoryName
-8:17
-    и было бы круто в случайном порядке*/
-
-
-/*
-    + написать метод, который принимает String и возвращает String, но:
-    начинается с "<html>.... идёт текст из принятого String, но каждые 35 знаков вместо пробела вставляется<br> ......<br>.......<br>......заканчивается</html> (edited)
-            4:36
-    например:
-            return "<html>Greeting!<br>Are you ready to check your knowledge?"
-            .concat("<br>Choose level, category and<br>how many questions<br>would you like</html>"
-                            4:37
-                    только здесь количество знаков разное
-                            4:37
-                            а должно быть 35+ (в зависимости от пробела)
-    String changeTextToHTML (String text, int length) {
-*/
-
-
-    /*По поводу code, что писал Андрей, то лучше тогла сделать так, что если у вопроса есть это поле, то записываем, если нет, тогда null.
-            6:29
-    соответственно, нужно добавить поле в Question*/
 
 }
