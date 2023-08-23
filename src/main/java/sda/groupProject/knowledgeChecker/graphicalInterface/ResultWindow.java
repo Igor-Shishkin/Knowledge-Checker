@@ -112,6 +112,7 @@ public class ResultWindow extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource()==trainButton) {
             new GreetingWindow(connect);
+            dispose();
         }
         if (e.getSource()==exitButton) {
             System.exit(1);
