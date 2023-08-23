@@ -1,24 +1,24 @@
 package sda.groupProject.knowledgeChecker;
 
-import sda.groupProject.knowledgeChecker.data.Advancement;
-import sda.groupProject.knowledgeChecker.data.Category;
-import sda.groupProject.knowledgeChecker.data.JSONConnector;
-import sda.groupProject.knowledgeChecker.data.Question;
+import sda.groupProject.knowledgeChecker.data.*;
 import sda.groupProject.knowledgeChecker.graphicalInterface.GreetingWindow;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Arrays;
 
-/**
- * Hello world!
- *
- */
 public class Main
 {
     public static void main( String[] args ) throws IOException {
 
+        // Testing changeTextToHTML method
+        String input = "Który wzorzec projektowy rozwiązuje problem polegający na potrzebie opcjonalnych argumentów konstruktora?";
+        int lineLength = 20;
+
+        String output = HTMLConverter.changeTextToHTML(input, lineLength);
+        System.out.println(output);
+
+        // Testing JSONConnector class methods
         JSONConnector connect = new JSONConnector();
 
         List<String> selectedCategories = Arrays.asList("GENERAL", "DESIGN_PATTERNS");
