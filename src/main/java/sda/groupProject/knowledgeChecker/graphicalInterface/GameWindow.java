@@ -258,15 +258,7 @@ public class GameWindow extends JFrame implements ActionListener {
                     answerRadioButtons.get(i).setToolTipText(listAnswersForTheQuestion.get(i).explanation());
                 }
                 questionPanel.repaint();
-                int length = Math.max(
-                        answersPanel.getWidth() + nextButton.getWidth(),
-                        Math.max(questionLabel.getWidth(), explanationPanel.getWidth())) + 150;
-                int height = answersPanel.getHeight() + explanationPanel.getHeight() +
-                        questionLabel.getHeight() + progressBar.getHeight() + 230;
-                out.println(length + "   " + height);
-//                questionPanel.repaint(0,0,length, height);
-                this.setPreferredSize(new Dimension(length, height));
-//                this.repaint(0,0,length,height);
+                this.pack();
             } else {
                 isRightAnswer.setText("WRONG");
                 isRightAnswer.setForeground(Color.RED);
@@ -290,15 +282,7 @@ public class GameWindow extends JFrame implements ActionListener {
                     answerRadioButtons.get(i).setToolTipText(listAnswersForTheQuestion.get(i).explanation());
                 }
                 questionPanel.repaint();
-                int length = Math.max(
-                        answersPanel.getWidth() + nextButton.getWidth(),
-                        Math.max(questionLabel.getWidth(), explanationPanel.getWidth())) + 150;
-                int height = answersPanel.getHeight() + explanationPanel.getHeight() +
-                        questionLabel.getHeight() + progressBar.getHeight() + 250;
-                out.println(length + "   " + height);
-//                questionPanel.repaint(0,0,length, height);
-                this.setPreferredSize(new Dimension(length, height));
-//                this.repaint(0,0,length,height);
+                this.pack();
             }
         }
         if (e.getSource() == nextButton) {
@@ -338,14 +322,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 questionLabel.setText(question.text());
 
                 questionPanel.repaint();
-                int length = Math.max(
-                        answersPanel.getWidth() + nextButton.getWidth(),
-                        Math.max(questionLabel.getWidth(), explanationPanel.getWidth())) + 150;
-                int height = answersPanel.getHeight() + explanationPanel.getHeight() +
-                        questionLabel.getHeight() + progressBar.getHeight() + 150;
-                out.println(length + "   " + height);
-//                questionPanel.repaint(0,0,length, height);
-                this.setPreferredSize(new Dimension(length, height));
+                this.pack();
             }
         }
     }

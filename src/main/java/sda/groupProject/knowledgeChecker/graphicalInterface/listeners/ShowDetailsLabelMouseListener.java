@@ -38,14 +38,12 @@ public class ShowDetailsLabelMouseListener implements MouseListener {
     @Override
     public void mouseEntered(MouseEvent e) {
         detailsLabel.setVisible(true);
-        frame.setSize(frame.getWidth(), frame.getHeight() + 50 + (20*quantityCategories));
-        resultPanel.setPreferredSize(new Dimension(500, 700));
+        frame.pack();
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
         detailsLabel.setVisible(false);
-        frame.setSize(frame.getWidth(), frame.getHeight() - 50 - (20*quantityCategories));
-        resultPanel.setPreferredSize(new Dimension(500, 600));
+        frame.pack();
     }
 }
