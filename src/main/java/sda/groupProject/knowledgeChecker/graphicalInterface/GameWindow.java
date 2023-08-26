@@ -224,13 +224,14 @@ public class GameWindow extends JFrame implements ActionListener {
 
     private void setButtonsPanel() {
         doneButton = new JButton("DONE");
-        doneButton.setFont(new Font(null, Font.BOLD, 40));
+        doneButton.setFont(new Font(null, Font.BOLD, 35));
         doneButton.setBackground(Color.GREEN);
         doneButton.setForeground(Color.WHITE);
         doneButton.addActionListener(this);
         doneButton.setEnabled(false);
 
         nextButton = new JButton("Next");
+        nextButton.setFont(new Font(null, Font.BOLD, 35));
         nextButton.setBackground(Color.BLUE);
         nextButton.setForeground(Color.WHITE);
         nextButton.addActionListener(this);
@@ -334,7 +335,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 el.get(currentNumber).answerRadioButtons()
                         .get(chosenAnswer)
                         .setForeground(Color.GREEN);
-//                questionPanel.repaint();
+
                 currentNumber++;
                 String progress = String.format("DONE: %d from %d", currentNumber, MAX_NUMBER_OF_QUESTION);
                 progressBar.setString(progress);
@@ -347,8 +348,6 @@ public class GameWindow extends JFrame implements ActionListener {
                 }
                 this.pack();
             } else {
-                out.println(chosenAnswer);
-
                 isRightAnswer.setText("WRONG");
                 isRightAnswer.setForeground(Color.RED);
                 isRightAnswer.setVisible(true);
@@ -379,7 +378,7 @@ public class GameWindow extends JFrame implements ActionListener {
                     el.get(currentNumber).answerRadioButtons().get(i)
                             .setToolTipText(el.get(currentNumber).listAnswersForTheQuestion().get(i).explanation());
                 }
-//                questionPanel.repaint();
+
                 currentNumber++;
                 String progress = String.format("DONE: %d from %d", currentNumber, MAX_NUMBER_OF_QUESTION);
                 progressBar.setString(progress);
@@ -395,7 +394,7 @@ public class GameWindow extends JFrame implements ActionListener {
             }
         }
         if (e.getSource() == nextButton) {
-            if (currentNumber >= MAX_NUMBER_OF_QUESTION) {
+            if (currentNumber >= MAX_NUMBER_OF_QUESTION || isEnd) {
                 nextButton.setText("SEE RESULT");
                 new ResultWindow(connect, score, MAX_NUMBER_OF_QUESTION, advancement, chosenCategory);
                 dispose();
@@ -423,7 +422,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
             forwardButton.setEnabled(currentNumber < MAX_NUMBER_OF_QUESTION - 1);
             backButton.setEnabled(true);
-            progressBar.setValue(currentNumber);
+            progressBar.setValue(currentNumber+1);
 
             this.pack();
         }
@@ -469,7 +468,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
             forwardButton.setEnabled(true);
             backButton.setEnabled(currentNumber > 0);
-            progressBar.setValue(currentNumber);
+            progressBar.setValue(currentNumber+1);
 
             this.pack();
         }
