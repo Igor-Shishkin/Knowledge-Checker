@@ -316,7 +316,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
             if (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
                 score++;
-                out.println(chosenAnswer);
                 isRightAnswer.setText("RIGHT");
                 isRightAnswer.setForeground(Color.GREEN);
                 isRightAnswer.setVisible(true);
@@ -341,10 +340,11 @@ public class GameWindow extends JFrame implements ActionListener {
                 progressBar.setString(progress);
                 progressBar.setValue(currentNumber);
                 if (currentNumber == MAX_NUMBER_OF_QUESTION) {
-                    currentNumber--;
                     nextButton.setText("SEE RESULT");
                     forwardButton.setVisible(true);
                     backButton.setVisible(true);
+                    currentNumber--;
+                    forwardButton.setEnabled(false);
                 }
                 this.pack();
             } else {
