@@ -1,9 +1,10 @@
 package sda.groupProject.knowledgeChecker.data;
 
 public class HTMLConverter {
+
     public static String changeTextToHTML(String text, int lineLength) {
         if (text == null || text.isEmpty() || lineLength <= 0) {
-            return "";
+            return text;
         }
 
         StringBuilder result = new StringBuilder("<html>");

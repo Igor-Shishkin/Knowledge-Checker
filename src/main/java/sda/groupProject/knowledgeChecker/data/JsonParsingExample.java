@@ -16,7 +16,8 @@ import java.util.Scanner;
 public class JsonParsingExample {
     public static void  main(String[] args) throws IOException {
         // More on java.net.URL Class in Java here: https://www.geeksforgeeks.org/java-net-url-class-in-java/
-        URL questionsJsonURL = new URL("https://public.andret.eu/questions.json");
+        URL questionsJsonURL = new URL("https://public.andret.eu/questions-test.json");
+//        URL questionsJsonURL = new URL("https://public.andret.eu/questions.json");
         // More on Java.net.HttpURLConnection Class in Java here: https://www.geeksforgeeks.org/java-net-httpurlconnection-class-java/
         HttpURLConnection connection = (HttpURLConnection) questionsJsonURL.openConnection();
         connection.setRequestMethod("GET");

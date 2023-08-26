@@ -2,6 +2,7 @@ package sda.groupProject.knowledgeChecker.graphicalInterface;
 
 import sda.groupProject.knowledgeChecker.data.Advancement;
 import sda.groupProject.knowledgeChecker.data.JSONConnector;
+import sda.groupProject.knowledgeChecker.data.Question;
 
 import javax.swing.*;
 import java.awt.*;
@@ -24,6 +25,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
     JLabel greetingLabel;
     JSONConnector connect;
     String[] listOfCategory;
+    List<Question> listOfQuestions;
     boolean isLevelChosen = false, isCategoryChosen = false, isQuantityChosen = false;
 
     public GreetingWindow(JSONConnector connect) {
@@ -215,8 +217,28 @@ public class GreetingWindow extends JFrame implements ActionListener {
                     chosenCategory[index++] = checkBox.getText();
                 }
             }
-            new GameWindow(chosenCategory, advancement, quantityQuestions, connect);
-            dispose();
+            listOfQuestions = connect.getListOfQuestions(advancement, chosenCategory, quantityQuestions);
+
+            if (quantityQuestions > listOfQuestions.size()) {
+                if (listOfQuestions.size()>0) {
+                    quantityQuestions = listOfQuestions.size();
+                    String message = String.format("There are only %d questions for the parameter you have chosen.",
+                            quantityQuestions);
+                    JOptionPane.showMessageDialog(this,
+                            message, "Warning", JOptionPane.ERROR_MESSAGE);
+                    new GameWindow(chosenCategory, advancement, quantityQuestions, connect, listOfQuestions);
+                    dispose();
+                } else {
+                    String message = "There aren't questions for\nthe parameter you have chosen.";
+                    JOptionPane.showMessageDialog(this,
+                            message, "Warning", JOptionPane.ERROR_MESSAGE);
+                }
+            } else {
+                new GameWindow(chosenCategory, advancement, quantityQuestions, connect, listOfQuestions);
+                dispose();
+            }
+
+
         }
         if (e.getSource()==levelBasicRadioButton ||
                 e.getSource()==levelMediumRadioButton ||
@@ -237,4 +259,5 @@ public class GreetingWindow extends JFrame implements ActionListener {
             }
         }
     }
+
 }

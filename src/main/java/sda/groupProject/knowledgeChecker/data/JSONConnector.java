@@ -17,6 +17,7 @@ public class JSONConnector {
     public JSONConnector() throws IOException {
         // Creating a jsonArray from https://public.andret.eu/questions.json
         URL questionsJsonURL = new URL("https://public.andret.eu/questions.json");
+//        URL questionsJsonURL = new URL("https://public.andret.eu/questions-test.json");
         HttpURLConnection connection = (HttpURLConnection) questionsJsonURL.openConnection();
         //connection.setRequestMethod("GET");
         //int responseCode = connection.getResponseCode();
