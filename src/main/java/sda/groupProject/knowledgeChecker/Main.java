@@ -37,4 +37,7 @@ public class Main
         // Testing GreetingWindow class
          new GreetingWindow(connect);
     }
+    public static void sleepForAWhile(int time) throws InterruptedException {
+        Thread.sleep(time);
+    }
 }

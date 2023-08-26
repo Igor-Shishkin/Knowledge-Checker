@@ -19,13 +19,14 @@ public class GreetingWindow extends JFrame implements ActionListener {
     JLayeredPane mainPane;
     JPanel greetingPanel, categoryPanel, levelPanel, quantityQuestionPanel;
     JButton startButton, doneButton, nextButton, exitButton;
-     JRadioButton levelBasicRadioButton, levelMediumRadioButton, levelExpertRadioButton,
-        quantityQuestion5RadioButton, quantityQuestion10RadioButton, quantityQuestion15RadioButton;
+    JRadioButton levelBasicRadioButton, levelMediumRadioButton, levelExpertRadioButton,
+            quantityQuestion5RadioButton, quantityQuestion10RadioButton, quantityQuestion15RadioButton;
     List<JCheckBox> categoriesCheckBoxList;
     JLabel greetingLabel;
     JSONConnector connect;
     String[] listOfCategory;
     List<Question> listOfQuestions;
+    JButton blitzButton;
     boolean isLevelChosen = false, isCategoryChosen = false, isQuantityChosen = false;
 
     public GreetingWindow(JSONConnector connect) {
@@ -35,10 +36,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
         setGreetingPanel();
 
 
-
-
-
-        this.setLayout(new GridLayout(1,1,5,5));
+        this.setLayout(new GridLayout(1, 1, 5, 5));
         this.add(greetingPanel);
 
         setFontForComponents(this);
@@ -79,11 +77,23 @@ public class GreetingWindow extends JFrame implements ActionListener {
 //                    "DESIGN_PATTERNS", "SPRING", "ALL"});
 
         startButton = new JButton("START!");
-        startButton.setFont(new Font(null, Font.BOLD, 40));
+        startButton.setFont(new Font(null, Font.BOLD, 30));
         startButton.setBackground(Color.GREEN);
         startButton.setForeground(Color.WHITE);
         startButton.addActionListener(this);
         startButton.setEnabled(false);
+
+        blitzButton = new JButton("<html>&nbsp;&nbsp;&nbsp;JOB<br>interview</html>");
+        blitzButton.setFont(new Font(null, Font.BOLD, 30));
+        blitzButton.setBackground(Color.RED);
+        blitzButton.setForeground(Color.WHITE);
+        blitzButton.addActionListener(this);
+        blitzButton.setEnabled(true);
+
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 5));
+        buttonPanel.add(startButton);
+        buttonPanel.add(blitzButton);
+
 
         greetingLabel = new JLabel
                 ("<html>Greeting!<br>Are you ready to check your knowledge?"
@@ -93,7 +103,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
         greetingPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(5,5,5,5);
+        c.insets = new Insets(5, 5, 5, 5);
         c.fill = GridBagConstraints.BOTH;
 
         c.gridx = 0;
@@ -112,25 +122,25 @@ public class GreetingWindow extends JFrame implements ActionListener {
         c.gridheight = 1;
         c.gridwidth = 3;
         greetingPanel.add(levelPanel, c);
-
+      
         c.gridx = 2;
         c.gridy = 2;
         greetingPanel.add(quantityQuestionPanel, c);
 
 
-        c.insets = new Insets(20,20,20,20);
+        c.insets = new Insets(20, 20, 20, 20);
         c.gridx = 2;
         c.gridy = 3;
         c.gridwidth = 2;
-        c.gridheight = (listOfCategory.length>4) ? listOfCategory.length - 2 : 3;
-        greetingPanel.add(startButton, c);
+        c.gridheight = (listOfCategory.length > 4) ? listOfCategory.length - 2 : 3;
+        greetingPanel.add(buttonPanel, c);
 
 
     }
 
     private void setComponentsForCategoryPanel() {
         listOfCategory = connect.getCategoryNames();
-        categoryPanel = new JPanel(new GridLayout(listOfCategory.length, 1,5,5));
+        categoryPanel = new JPanel(new GridLayout(listOfCategory.length, 1, 5, 5));
         categoryPanel.setBorder(BorderFactory.createTitledBorder("Choose categories"));
 
         System.out.println(Arrays.toString(listOfCategory));
@@ -141,10 +151,12 @@ public class GreetingWindow extends JFrame implements ActionListener {
             categoriesCheckBoxList.get(i).addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    isCategoryChosen=false;
+                    isCategoryChosen = false;
                     System.out.println("category");
                     for (JCheckBox checkBox : categoriesCheckBoxList) {
-                        if (checkBox.isSelected()) { isCategoryChosen=true; }
+                        if (checkBox.isSelected()) {
+                            isCategoryChosen = true;
+                        }
                     }
                     startButton.setEnabled(isCategoryChosen && isLevelChosen && isQuantityChosen);
                 }
@@ -167,7 +179,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
         quantityGroupButton.add(quantityQuestion10RadioButton);
         quantityGroupButton.add(quantityQuestion15RadioButton);
 
-        quantityQuestionPanel = new JPanel(new GridLayout(1,3,5,15));
+        quantityQuestionPanel = new JPanel(new GridLayout(1, 3, 5, 15));
         quantityQuestionPanel.setBorder(BorderFactory.createTitledBorder("How many questions do you want?"));
         quantityQuestionPanel.add(quantityQuestion5RadioButton);
         quantityQuestionPanel.add(quantityQuestion10RadioButton);
@@ -189,7 +201,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
         levelGroupButton.add(levelMediumRadioButton);
         levelGroupButton.add(levelExpertRadioButton);
 
-        levelPanel = new JPanel(new GridLayout(1,3,5,5));
+        levelPanel = new JPanel(new GridLayout(1, 3, 5, 5));
         levelPanel.setBorder(BorderFactory.createTitledBorder("Choose level"));
         levelPanel.add(levelBasicRadioButton);
         levelPanel.add(levelMediumRadioButton);
@@ -198,21 +210,21 @@ public class GreetingWindow extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource()==startButton) {
+        if (e.getSource() == startButton) {
             int quantityQuestions = (quantityQuestion5RadioButton.isSelected()) ? 5
                     : (quantityQuestion10RadioButton.isSelected()) ? 10
                     : 15;
             int quantityChosenCategories = 0;
             for (JCheckBox checkBox : categoriesCheckBoxList) {
                 quantityChosenCategories = (checkBox.isSelected())
-                        ? quantityChosenCategories+1 : quantityChosenCategories;
+                        ? quantityChosenCategories + 1 : quantityChosenCategories;
             }
             Advancement advancement = (levelBasicRadioButton.isSelected()) ? Advancement.BASIC
                     : (levelMediumRadioButton.isSelected()) ? Advancement.MEDIUM
                     : Advancement.EXPERT;
             String[] chosenCategory = new String[quantityChosenCategories];
             int index = 0;
-            for (JCheckBox checkBox : categoriesCheckBoxList){
+            for (JCheckBox checkBox : categoriesCheckBoxList) {
                 if (checkBox.isSelected()) {
                     chosenCategory[index++] = checkBox.getText();
                 }
@@ -220,7 +232,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
             listOfQuestions = connect.getListOfQuestions(advancement, chosenCategory, quantityQuestions);
 
             if (quantityQuestions > listOfQuestions.size()) {
-                if (listOfQuestions.size()>0) {
+                if (listOfQuestions.size() > 0) {
                     quantityQuestions = listOfQuestions.size();
                     String message = String.format("There are only %d questions for the parameter you have chosen.",
                             quantityQuestions);
@@ -237,27 +249,34 @@ public class GreetingWindow extends JFrame implements ActionListener {
                 new GameWindow(chosenCategory, advancement, quantityQuestions, connect, listOfQuestions);
                 dispose();
             }
-
-
         }
-        if (e.getSource()==levelBasicRadioButton ||
-                e.getSource()==levelMediumRadioButton ||
-                e.getSource()==levelExpertRadioButton) {
+        if (e.getSource() == levelBasicRadioButton ||
+                e.getSource() == levelMediumRadioButton ||
+                e.getSource() == levelExpertRadioButton) {
             isLevelChosen = true;
             System.out.println("level");
             if (isCategoryChosen && isQuantityChosen) {
                 startButton.setEnabled(true);
             }
         }
-        if (e.getSource()==quantityQuestion5RadioButton ||
-                e.getSource()==quantityQuestion15RadioButton ||
-                e.getSource()==quantityQuestion10RadioButton) {
+        if (e.getSource() == quantityQuestion5RadioButton ||
+                e.getSource() == quantityQuestion15RadioButton ||
+                e.getSource() == quantityQuestion10RadioButton) {
             isQuantityChosen = true;
             System.out.println("quantity");
             if (isCategoryChosen && isLevelChosen) {
                 startButton.setEnabled(true);
             }
         }
-    }
+        if (e.getSource() == blitzButton) {
 
+            listOfQuestions = connect.getListOfQuestions();
+
+
+            new BlitzWindow(connect, listOfQuestions);
+            dispose();
+
+        }
+    }
 }
+

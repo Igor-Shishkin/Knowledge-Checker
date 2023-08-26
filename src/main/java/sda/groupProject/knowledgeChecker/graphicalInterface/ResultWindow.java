@@ -74,12 +74,12 @@ public class ResultWindow extends JFrame implements ActionListener {
         String detailsText = String.format("<html>Categories:<br> %s<br>Level: %s<br>Quantity of questions: %d</html>",
                 categories.substring(0,categories.length()-4), advancement, quantityQuestions);
         JLabel detailsLabel = new JLabel(detailsText);
-        detailsLabel.setVisible(false);
+//        detailsLabel.setVisible(false);
         detailsLabel.setBorder(BorderFactory.createTitledBorder("Details"));
         detailsLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.PLAIN, 25));
 
-        resultLabel.addMouseListener(new ShowDetailsLabelMouseListener(this, detailsLabel, listOfCategory.length,
-                resultPanel));
+//        resultLabel.addMouseListener(new ShowDetailsLabelMouseListener(this, detailsLabel, listOfCategory.length,
+//                resultPanel));
 
         resultPanel = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
@@ -92,11 +92,13 @@ public class ResultWindow extends JFrame implements ActionListener {
         resultPanel.add(resultLabel, c);
 
 
+        c.insets = new Insets(20,10,10,10);
         c.gridx = 0;
         c.gridy = 2;
         c.gridwidth = 2;
         resultPanel.add(detailsLabel, c);
 
+        c.insets = new Insets(10,10,10,10);
         c.gridx = 0;
         c.gridy = 4;
         c.gridwidth = 1;
