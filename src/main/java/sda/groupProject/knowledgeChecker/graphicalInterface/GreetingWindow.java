@@ -122,8 +122,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
         c.gridheight = 1;
         c.gridwidth = 3;
         greetingPanel.add(levelPanel, c);
-
-        ;
+      
         c.gridx = 2;
         c.gridy = 2;
         greetingPanel.add(quantityQuestionPanel, c);
