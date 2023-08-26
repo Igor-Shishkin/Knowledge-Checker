@@ -9,16 +9,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.System.*;
 
 public class GameWindow extends JFrame implements ActionListener {
-    JPanel questionPanel, buttonsPanel;
+    JPanel buttonsPanel;
 //    JPanel explanationPanel, answersPanel, codePanel;
     JSeparator separator1, separator2;
-    JButton doneButton, nextButton, exitButton;
+    JButton doneButton, nextButton, forwardButton, backButton;
 //    List<JRadioButton> answerRadioButtons;
     JLabel  isRightAnswer;
 //    JLabel questionLabel, rightExplanation, chosenExplanation;
@@ -44,16 +45,17 @@ public class GameWindow extends JFrame implements ActionListener {
         this.MAX_NUMBER_OF_QUESTION = quantityQuestions;
         this.listOfQuestions = listOfQuestions;
 
-        setElementsOfQuestion();
         setButtonsPanel();
+        setProgressBar();
+
+        addNewElementsOfQuestion();
 
 
         setQuestionPanel();
 
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
-        JScrollPane scrollPane = new JScrollPane(questionPanel);
-        this.add(scrollPane);
+        this.add(el.get(currentNumber).scrollPane());
 
 //        this.setSize(new Dimension(WIDTH_PANE, HEIGHT_PANE));
         this.pack();
@@ -64,12 +66,22 @@ public class GameWindow extends JFrame implements ActionListener {
         this.setVisible(true);
     }
 
-    private void setElementsOfQuestion() {
+    private void setProgressBar() {
+        progressBar = new JProgressBar(0, MAX_NUMBER_OF_QUESTION);
+        progressBar.setStringPainted(true);
+        progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
+        progressBar.setForeground(Color.red);
+        progressBar.setBackground(Color.black);
+        progressBar.setValue(0);
+        progressBar.setString("DONE: 0 from " + listOfQuestions.size());
+    }
+
+    private void addNewElementsOfQuestion() {
         Question question = listOfQuestions.get(currentNumber);
         ButtonGroup answersGroupButton = new ButtonGroup();
         List<JRadioButton> answerRadioButtons = new ArrayList<>();
 //        setElementsToExplanationPanel();
-        setButtonsPanel();
+
 
         String text = changeTextToHTML(listOfQuestions.get(0).text(), MAX_LENGTH);
 //        JLabel questionLabel = new JLabel(text);
@@ -88,6 +100,7 @@ public class GameWindow extends JFrame implements ActionListener {
                 public void actionPerformed(ActionEvent e) {
                     chosenAnswer = finalI;
                     doneButton.setEnabled(true);
+                    out.println("Hello");
                 }
             });
             answersGroupButton.add(answerRadioButtons.get(i));
@@ -106,6 +119,8 @@ public class GameWindow extends JFrame implements ActionListener {
         JLabel chosenExplanation = new JLabel();
         rightExplanation.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.PLAIN, 20));
         chosenExplanation.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.PLAIN, 20));
+        rightExplanation.setForeground(Color.green);
+        chosenExplanation.setForeground(Color.red);
 
         c.gridx = 0;
         c.gridy = 0;
@@ -122,11 +137,75 @@ public class GameWindow extends JFrame implements ActionListener {
         codePanel.setBorder(BorderFactory.createLoweredSoftBevelBorder());
         JLabel codeLabel = new JLabel(changeTextToHTML(question.code(), MAX_LENGTH));
         codePanel.add(codeLabel);
-        if (question.code()==null) { codePanel.setVisible(false); } else  { codePanel.setVisible(true);}
+        codePanel.setVisible(question.code() != null);
 
         JLabel questionLabel = new JLabel(changeTextToHTML(question.text(), MAX_LENGTH));
         questionLabel.setHorizontalAlignment(SwingConstants.CENTER);
         questionLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 20));
+
+        JPanel questionPanel = new JPanel(new GridBagLayout());
+
+        separator1 = new JSeparator();
+        separator1.setVisible(false);
+
+        separator2 = new JSeparator();
+        separator2.setVisible(true);
+
+        c.insets = new Insets(10, 5, 10, 5);
+        c.fill = GridBagConstraints.BOTH;
+
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 10;
+        questionPanel.add(questionLabel, c);
+
+        c.insets = new Insets(6, 10, 6, 5);
+        c.gridx = 0;
+        c.gridy = 1;
+        c.gridheight = 1;
+        c.gridwidth = 9;
+        questionPanel.add(codePanel, c);
+
+        c.insets = new Insets(6, 10, 6, 5);
+        c.gridx = 0;
+        c.gridy = 2;
+        c.gridheight = listAnswersForTheQuestion.size();
+        c.gridwidth = 9;
+        questionPanel.add(answersPanel, c);
+
+        c.insets = new Insets(2, 5, 2, 5);
+        c.gridx = 9;
+        c.gridy = 2;
+        c.gridwidth = 1;
+        c.gridheight = listAnswersForTheQuestion.size()-1;
+        questionPanel.add(buttonsPanel, c);
+
+        c.insets = new Insets(3, 5, 3, 5);
+        c.gridx = 0;
+        c.gridy = listAnswersForTheQuestion.size() + 1;
+        c.gridheight = 1;
+        c.gridwidth = 10;
+        questionPanel.add(separator1, c);
+
+        c.insets = new Insets(3, 5, 3, 5);
+        c.gridx = 0;
+        c.gridy = listAnswersForTheQuestion.size() + 2;
+        c.gridwidth = 10;
+        c.gridheight = 3;
+        questionPanel.add(explanationPanel, c);
+
+        c.gridx = 0;
+        c.gridy = listAnswersForTheQuestion.size() + 6;
+        c.gridwidth = 10;
+        c.gridheight = 1;
+        questionPanel.add(separator2, c);
+
+        c.gridy = listAnswersForTheQuestion.size() + 7;
+        c.gridwidth = 10;
+        c.gridheight = 1;
+        questionPanel.add(progressBar, c);
+
+        JScrollPane scrollPane = new JScrollPane(questionPanel);
 
         el.add(new GraficalElementsOfQuestion(question,
                 explanationPanel,
@@ -137,99 +216,13 @@ public class GameWindow extends JFrame implements ActionListener {
                 rightExplanation,
                 chosenExplanation,
                 answersGroupButton,
-                listAnswersForTheQuestion));
+                listAnswersForTheQuestion,
+                questionPanel,
+                scrollPane));
 
     }
 
     private void setQuestionPanel() {
-
-
-
-
-        separator1 = new JSeparator();
-        separator1.setVisible(false);
-
-        separator2 = new JSeparator();
-        separator2.setVisible(true);
-
-        progressBar = new JProgressBar(0, MAX_NUMBER_OF_QUESTION);
-        progressBar.setStringPainted(true);
-        progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
-        progressBar.setForeground(Color.red);
-        progressBar.setBackground(Color.black);
-        progressBar.setValue(0);
-        progressBar.setString("DONE: 0 from " + listOfQuestions.size());
-
-
-        questionPanel = new JPanel(new GridBagLayout());
-
-        c.insets = new Insets(10, 5, 10, 5);
-        c.fill = GridBagConstraints.BOTH;
-
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 10;
-        questionPanel.add(el.get(currentNumber).questionLabel(), c);
-
-        c.insets = new Insets(6, 10, 6, 5);
-        c.gridx = 0;
-        c.gridy = 1;
-        c.gridheight = 1;
-        c.gridwidth = 9;
-        questionPanel.add(el.get(currentNumber).codePanel(), c);
-
-        c.insets = new Insets(6, 10, 6, 5);
-        c.gridx = 0;
-        c.gridy = 2;
-        c.gridheight = el.get(currentNumber).listAnswersForTheQuestion().size();
-        c.gridwidth = 9;
-        questionPanel.add(el.get(currentNumber).answersPanel(), c);
-
-        c.insets = new Insets(3, 5, 3, 5);
-        c.gridx = 0;
-        c.gridy = el.get(currentNumber).listAnswersForTheQuestion().size() + 1;
-        c.gridheight = 1;
-        c.gridwidth = 10;
-        questionPanel.add(separator1, c);
-
-        c.insets = new Insets(3, 5, 3, 5);
-        c.gridx = 0;
-        c.gridy = el.get(currentNumber).listAnswersForTheQuestion().size() + 2;
-        c.gridwidth = 10;
-        c.gridheight = 3;
-        questionPanel.add(el.get(currentNumber).explanationPanel(), c);
-
-        c.gridx = 0;
-        c.gridy = el.get(currentNumber).listAnswersForTheQuestion().size() + 6;
-        c.gridwidth = 10;
-        c.gridheight = 1;
-        questionPanel.add(separator2, c);
-
-        c.gridy = el.get(currentNumber).listAnswersForTheQuestion().size() + 7;
-        c.gridwidth = 10;
-        c.gridheight = 1;
-        questionPanel.add(progressBar, c);
-
-        c.insets = new Insets(2, 5, 2, 5);
-        c.gridx = 9;
-        c.gridy = 2;
-        c.gridwidth = 1;
-        c.gridheight = el.get(currentNumber).listAnswersForTheQuestion().size()-1;
-        questionPanel.add(buttonsPanel, c);
-
-//        c.insets = new Insets(20, 20, 20, 20);
-//        c.gridx = 9;
-//        c.gridy = 3;
-//        c.gridheight = 2;
-//        questionPanel.add(doneButton, c);
-//
-//        c.insets = new Insets(20, 20, 20, 20);
-//        c.gridx = 9;
-//        c.gridy = 3;
-//        c.gridheight = 2;
-//        questionPanel.add(nextButton, c);
-
-
     }
 
     private void setButtonsPanel() {
@@ -246,15 +239,30 @@ public class GameWindow extends JFrame implements ActionListener {
         nextButton.addActionListener(this);
         nextButton.setVisible(false);
 
+        ImageIcon forwardIcon = new ImageIcon("src/main/resources/next.png");
+        ImageIcon backIcon = new ImageIcon("src/main/resources/previous.png");
+        forwardButton = new JButton(forwardIcon);
+        forwardButton.setVisible(false);
+        forwardButton.addActionListener(this);
+        backButton = new JButton(backIcon);
+        backButton.setVisible(false);
+        backButton.addActionListener(this);
+
+        JPanel nextBackPanel = new JPanel(new GridLayout(1,2,5,5));
+        nextBackPanel.add(backButton);
+        nextBackPanel.add(forwardButton);
+
+
         isRightAnswer = new JLabel();
         isRightAnswer.setVisible(false);
         isRightAnswer.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 35));
         isRightAnswer.setHorizontalAlignment(SwingConstants.CENTER);
 
-        buttonsPanel = new JPanel(new GridLayout(3,1,10,10));
+        buttonsPanel = new JPanel(new GridLayout(4,1,10,10));
         buttonsPanel.add(isRightAnswer);
         buttonsPanel.add(doneButton);
         buttonsPanel.add(nextButton);
+        buttonsPanel.add(nextBackPanel);
     }
 
 
@@ -304,16 +312,11 @@ public class GameWindow extends JFrame implements ActionListener {
 
 
         if (e.getSource() == doneButton) {
-            out.println(listOfQuestions.get(currentNumber).category());
-            out.println(listOfQuestions.get(currentNumber).advancement());
             doneButton.setVisible(false);
-            doneButton.setEnabled(false);
-            if (currentNumber == MAX_NUMBER_OF_QUESTION) {
-                nextButton.setText("SEE RESULT");
-            }
-            progressBar.setValue(currentNumber);
-            String progress = String.format("DONE: %d from %d", currentNumber, MAX_NUMBER_OF_QUESTION);
-            progressBar.setString(progress);
+//            doneButton.setEnabled(false);
+
+
+
 
             if (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
                 score++;
@@ -336,9 +339,17 @@ public class GameWindow extends JFrame implements ActionListener {
                 el.get(currentNumber).answerRadioButtons()
                         .get(chosenAnswer)
                         .setForeground(Color.GREEN);
-                questionPanel.repaint();
-                this.pack();
+//                questionPanel.repaint();
                 currentNumber++;
+                String progress = String.format("DONE: %d from %d", currentNumber, MAX_NUMBER_OF_QUESTION);
+                progressBar.setString(progress);
+                progressBar.setValue(currentNumber);
+                if (currentNumber == MAX_NUMBER_OF_QUESTION) {
+                    nextButton.setText("SEE RESULT");
+                    forwardButton.setVisible(true);
+                    backButton.setVisible(true);
+                }
+                this.pack();
             } else {
                 out.println(chosenAnswer);
 
@@ -372,36 +383,83 @@ public class GameWindow extends JFrame implements ActionListener {
                     el.get(currentNumber).answerRadioButtons().get(i)
                             .setToolTipText(el.get(currentNumber).listAnswersForTheQuestion().get(i).explanation());
                 }
-                questionPanel.repaint();
-                this.pack();
+//                questionPanel.repaint();
                 currentNumber++;
+                String progress = String.format("DONE: %d from %d", currentNumber, MAX_NUMBER_OF_QUESTION);
+                progressBar.setString(progress);
+                progressBar.setValue(currentNumber);
+                if (currentNumber == MAX_NUMBER_OF_QUESTION) {
+                    nextButton.setText("SEE RESULT");
+                    forwardButton.setVisible(true);
+                    backButton.setVisible(true);
+                    currentNumber--;
+                    forwardButton.setEnabled(false);
+                }
+                this.pack();
             }
         }
         if (e.getSource() == nextButton) {
             if (currentNumber >= MAX_NUMBER_OF_QUESTION) {
-//                nextButton.setText("SEE RESULT");
-//                new ResultWindow(connect, score, MAX_NUMBER_OF_QUESTION, advancement, chosenCategory);
-//                dispose();
-//            } else {
-//                isRightAnswer.setVisible(false);
-//                nextButton.setVisible(false);
-//                doneButton.setVisible(true);
-//                questionPanel.remove(el.get(currentNumber).answersPanel());
+                nextButton.setText("SEE RESULT");
+                new ResultWindow(connect, score, MAX_NUMBER_OF_QUESTION, advancement, chosenCategory);
+                dispose();
+            } else {
+                isRightAnswer.setVisible(false);
+                nextButton.setVisible(false);
+                doneButton.setVisible(true);
+
+                addNewElementsOfQuestion();
+
+//                c.gridx = 0;
+//                c.gridy = 0;
+//                c.gridwidth = 10;
+//                questionPanel.add(el.get(currentNumber).questionLabel(), c);
+//
+//                c.insets = new Insets(6, 10, 6, 5);
+//                c.gridx = 0;
+//                c.gridy = 1;
+//                c.gridheight = 1;
+//                c.gridwidth = 9;
+//                questionPanel.add(el.get(currentNumber).codePanel(), c);
+//
+//                c.insets = new Insets(6, 10, 6, 5);
+//                c.gridx = 0;
+//                c.gridy = 2;
+//                c.gridheight = el.get(currentNumber).listAnswersForTheQuestion().size();
+//                c.gridwidth = 9;
+//                questionPanel.add(el.get(currentNumber).answersPanel(), c);
+//
+//                c.insets = new Insets(2, 5, 2, 5);
+//                c.gridx = 9;
+//                c.gridy = 2;
+//                c.gridwidth = 1;
+//                c.gridheight = el.get(currentNumber).listAnswersForTheQuestion().size()-1;
+//                questionPanel.add(buttonsPanel, c);
+//
+//                c.insets = new Insets(3, 5, 3, 5);
+//                c.gridx = 0;
+//                c.gridy = el.get(currentNumber).listAnswersForTheQuestion().size() + 2;
+//                c.gridwidth = 10;
+//                c.gridheight = 3;
+//                questionPanel.add(el.get(currentNumber).explanationPanel(), c);
+
+
+
 //                el.get(currentNumber).answerRadioButtons.get(chosenAnswer).setForeground(Color.BLACK);
 //                explanationPanel.setVisible(false);
 //                chosenExplanation.setVisible(false);
 //                separator1.setVisible(false);
-//
-//
+
+
 //                for (int i = listAnswersForTheQuestion.size() - 1; i >= 0; i--) {
 //                    listAnswersForTheQuestion.remove(listAnswersForTheQuestion.get(i));
 //                    answerRadioButtons.remove(answerRadioButtons.get(i));
 //                }
 //                Question question = listOfQuestions.get(currentNumber);
 //                listAnswersForTheQuestion = question.answers();
-//
-////                out.println(listAnswersForTheQuestion.toString());
-//
+
+//                out.println(listAnswersForTheQuestion.toString());
+
 //                setElementsToAnswerPanel();
 //                c.insets = new Insets(2, 10, 3, 5);
 //                c.gridx = 0;
@@ -409,37 +467,54 @@ public class GameWindow extends JFrame implements ActionListener {
 //                c.gridheight = listAnswersForTheQuestion.size();
 //                c.gridwidth = 9;
 //                questionPanel.add(answersPanel, c);
-//
+
 //                questionPanel.remove(explanationPanel);
 //                questionPanel.remove(separator2);
 //                questionPanel.remove(progressBar);
-//
-//
+
+
 //                c.insets = new Insets(3, 5, 3, 5);
 //                c.gridx = 0;
 //                c.gridy = listAnswersForTheQuestion.size() + 2;
 //                c.gridwidth = 10;
 //                c.gridheight = 3;
 //                questionPanel.add(explanationPanel, c);
-//
+
 //                c.gridx = 0;
 //                c.gridy = listAnswersForTheQuestion.size() + 6;
 //                c.gridwidth = 10;
 //                c.gridheight = 1;
 //                questionPanel.add(separator2, c);
-//
+
 //                c.gridy = listAnswersForTheQuestion.size() + 7;
 //                c.gridwidth = 10;
 //                c.gridheight = 1;
 //                questionPanel.add(progressBar, c);
-//
+
 //                questionLabel.setText(changeTextToHTML(question.text(),MAX_LENGTH));
 //                questionPanel.repaint();
-//                this.pack();
+
+                this.remove(el.get(currentNumber-1).scrollPane());
+                this.add(el.get(currentNumber).scrollPane());
+                this.pack();
             }
         }
+        if (e.getSource() == forwardButton) {
+            currentNumber++;
+            forwardButton.setEnabled(currentNumber<MAX_NUMBER_OF_QUESTION-1);
+            this.remove(el.get(currentNumber-1).scrollPane());
+            this.add(el.get(currentNumber).scrollPane());
+            this.pack();
+        }
+        if (e.getSource() == backButton) {
+            currentNumber--;
+            backButton.setEnabled(currentNumber>0);
+            this.remove(el.get(currentNumber).scrollPane());
+            this.add(el.get(currentNumber-1).scrollPane());
+            this.pack();
+        }
     }
-    public static String changeTextToHTML(String text, int lineLength) {
+    public String changeTextToHTML(String text, int lineLength) {
         if (text == null || text.isEmpty() || lineLength <= 0) {
             return text;
         }

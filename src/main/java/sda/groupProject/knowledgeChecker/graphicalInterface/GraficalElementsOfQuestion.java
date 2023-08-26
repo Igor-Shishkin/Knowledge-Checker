@@ -10,6 +10,7 @@ import java.util.List;
 
 public record GraficalElementsOfQuestion(Question question, JPanel explanationPanel, JPanel answersPanel, JPanel codePanel,
             List<JRadioButton> answerRadioButtons, JLabel questionLabel, JLabel rightExplanation,
-            JLabel chosenExplanation, ButtonGroup answersGroupButton, List<Answer> listAnswersForTheQuestion) {
+            JLabel chosenExplanation, ButtonGroup answersGroupButton, List<Answer> listAnswersForTheQuestion,
+                                         JPanel questionPanel, JScrollPane scrollPane) {
 
 }
