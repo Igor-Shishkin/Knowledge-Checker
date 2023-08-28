@@ -143,7 +143,6 @@ public class GreetingWindow extends JFrame implements ActionListener {
         categoryPanel = new JPanel(new GridLayout(listOfCategory.length, 1, 5, 5));
         categoryPanel.setBorder(BorderFactory.createTitledBorder("Choose categories"));
 
-        System.out.println(Arrays.toString(listOfCategory));
         categoriesCheckBoxList = new ArrayList<>();
 
         for (int i = 0; i < listOfCategory.length; i++) {

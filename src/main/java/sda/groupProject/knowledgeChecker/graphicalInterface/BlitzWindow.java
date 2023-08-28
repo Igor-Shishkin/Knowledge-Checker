@@ -92,13 +92,9 @@ public class BlitzWindow extends JFrame implements ActionListener {
             answerRadioButtons
                     .add(new JRadioButton(changeTextToHTML(listAnswersForTheQuestion.get(i).text(), ANSWER_LENGTH)));
             int finalI = i;
-            answerRadioButtons.get(i).addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    chosenAnswer = finalI;
-                    nextButton.setEnabled(true);
-                    out.println("Hello");
-                }
+            answerRadioButtons.get(i).addActionListener(e -> {
+                chosenAnswer = finalI;
+                nextButton.setEnabled(true);
             });
             answersGroupButton.add(answerRadioButtons.get(i));
             c.gridx = 0;
@@ -264,15 +260,48 @@ public class BlitzWindow extends JFrame implements ActionListener {
                 dispose();
 
             } else {
+
                 int maxPoints = (el.get(currentNumber).question().advancement() == Advancement.BASIC) ? 1
                         : (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) ? 2
                         : 3;
                 maxScore = maxScore + maxPoints;
+
+
+                el.get(currentNumber).questionPanel().remove(buttonsPanel);
+                el.get(currentNumber).questionPanel().remove(progressBar);
+                el.get(currentNumber).questionPanel().remove(separator2);
+                el.get(currentNumber).questionPanel().remove(separator1);
+
+
+
+
                 if (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
 
                     int points = (el.get(currentNumber).question().advancement() == Advancement.BASIC) ? 1
                             : (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) ? 2
                             : 3;
+
+
+                    JLabel scoreLabel = new JLabel(Double.toString(points));
+                    JLabel levelLabel = new JLabel(el.get(currentNumber).question().advancement().toString());
+                    JLabel categoryLabel = new JLabel(el.get(currentNumber).question().category().categoryName());
+                    scoreLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    levelLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    categoryLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    scoreLabel.setForeground(Color.GREEN);
+
+                    c.gridx = 9;
+                    c.gridy = 2;
+                    c.gridwidth = 1;
+                    c.gridheight = 1;
+                    el.get(currentNumber).questionPanel().add(scoreLabel, c);
+
+                    c.gridy = 3;
+                    el.get(currentNumber).questionPanel().add(levelLabel, c);
+
+                    c.gridy = 4;
+                    el.get(currentNumber).questionPanel().add(categoryLabel, c);
+
 
                     textForScoreLabel = score + " + " + points;
                     isRightAnswer.setText(textForScoreLabel);
@@ -296,6 +325,9 @@ public class BlitzWindow extends JFrame implements ActionListener {
                     el.get(currentNumber).questionPanel().repaint();
                     el.get(currentNumber).scrollPane().repaint();
 
+
+
+
                     currentNumber++;
 
 
@@ -304,6 +336,27 @@ public class BlitzWindow extends JFrame implements ActionListener {
                     double points = (el.get(currentNumber).question().advancement() == Advancement.BASIC) ? -0.5
                             : (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) ? -1
                             : -1.5;
+
+                    JLabel scoreLabel = new JLabel(Double.toString(points));
+                    JLabel levelLabel = new JLabel(el.get(currentNumber).question().advancement().toString());
+                    JLabel categoryLabel = new JLabel(el.get(currentNumber).question().category().categoryName());
+                    scoreLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    levelLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    categoryLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    scoreLabel.setForeground(Color.RED);
+
+                    c.gridx = 9;
+                    c.gridy = 2;
+                    c.gridwidth = 1;
+                    c.gridheight = 1;
+                    el.get(currentNumber).questionPanel().add(scoreLabel, c);
+
+                    c.gridy = 3;
+                    el.get(currentNumber).questionPanel().add(levelLabel, c);
+
+                    c.gridy = 4;
+                    el.get(currentNumber).questionPanel().add(categoryLabel, c);
+
 
                     textForScoreLabel = score + " - " + Math.abs(points);
                     isRightAnswer.setText(textForScoreLabel);
