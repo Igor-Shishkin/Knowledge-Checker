@@ -10,7 +10,11 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class ResultForBlitz extends JFrame implements ActionListener {
+    Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    Color DARK_GREEN = new Color(0x066C00);
+    Color DARK_BLUE = new Color(0x001A60);
     JSONConnector connect;
+    JLabel resultLabel;
     List<GraficalElementsOfQuestion> el;
     double score, maxScore;
     int currentNumber;
@@ -19,6 +23,8 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     Advancement advancement;
     JButton exitButton, trainButton, seeTestButton, forwardButton, backButton;
     GridBagConstraints c;
+    String seeAnswers = "SEE MY ANSWERS";
+    String seeResult = "SEE MY RESULT";
 
     boolean isTimeOver = false;
 
@@ -39,7 +45,6 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         this.add(scrollPane);
 
 
-//        this.setSize(new Dimension(WIDTH_PANE, HEIGHT_PANE));
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
@@ -54,6 +59,8 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         forwardButton.addActionListener(this);
         backButton = new JButton(backIcon);
         backButton.addActionListener(this);
+        forwardButton.setBackground(Color.GRAY);
+        backButton.setBackground(Color.GRAY);
 
         JPanel nextBackButtonPanel = new JPanel(new GridLayout(1,2,5,5));
         nextBackButtonPanel.add(backButton);
@@ -74,18 +81,26 @@ public class ResultForBlitz extends JFrame implements ActionListener {
 
         c.gridx = 0;
         c.gridy = 3;
-        c.gridwidth = 3;
+        c.gridwidth = 2;
         resultPanel.add(reviewPanel, c);
     }
 
     private void setResultPanel() {
         exitButton = new JButton("EXIT");
         trainButton = new JButton("TRAIN");
-        trainButton.setPreferredSize(new Dimension(100, 25));
+        trainButton.setPreferredSize(new Dimension(100, 30));
         exitButton.addActionListener(this);
         trainButton.addActionListener(this);
-        seeTestButton = new JButton("See my test");
+        seeTestButton = new JButton(seeAnswers);
         seeTestButton.addActionListener(this);
+
+        exitButton.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
+        exitButton.setForeground(Color.RED);
+        trainButton.setBorder(BorderFactory.createLineBorder(DARK_GREEN, 3));
+        trainButton.setForeground(DARK_GREEN);
+        seeTestButton.setBorder(BorderFactory.createLineBorder(Color.blue, 3));
+        seeTestButton.setForeground(Color.blue);
+
 
 
 
@@ -99,10 +114,8 @@ public class ResultForBlitz extends JFrame implements ActionListener {
                         .concat("You scored %3.1f points out of %3.1f<br>or %3.1f percent.<br>")
                         .concat("More work could be done :(<br>Good luck on your next try")),
                 currentNumber , score, maxScore, percent);
-        JLabel resultLabel = new JLabel(resultText);
-        resultLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.PLAIN, 30));
-
-
+        resultLabel = new JLabel(resultText);
+        resultLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 30));
 
         JPanel buttonsPanel = new JPanel(new GridLayout(1,3,5,5));
         buttonsPanel.add(trainButton);
@@ -140,48 +153,46 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         }
         if (e.getSource() == seeTestButton) {
 
-            reviewPanel.setVisible(true);
+            if (seeTestButton.getText().equals(seeAnswers)) {
 
-            showQuestionPanel.add(el.get(currentNumber-1).questionPanel());
-            this.pack();
+                reviewPanel.setVisible(true);
+                resultLabel.setVisible(false);
 
+                if (currentNumber == el.size()) {
+                    currentNumber--;
+                }
+                forwardButton.setEnabled(currentNumber<el.size()-1);
+                showQuestionPanel.add(el.get(currentNumber).questionPanel());
+                this.pack();
 
+                seeTestButton.setText(seeResult);
+            }  else {
+                reviewPanel.setVisible(false);
+                resultLabel.setVisible(true);
 
+                showQuestionPanel.remove(el.get(currentNumber).questionPanel());
+                seeTestButton.setText(seeAnswers);
 
-
-
-
-
-//            showQuestionPanel = new JPanel(new GridLayout(el.size(),1,5,5));
-//
-//            int length = 500;
-//            for (GraficalElementsOfQuestion element : el) {
-//                JPanel panelForTheQuestion = new JPanel(new GridBagLayout());
-//
-//                c.gridx = 0;
-//                c.gridy = 0;
-//                c.gridwidth = 1;
-//                c.gridheight = 1;
-//                panelForTheQuestion.add(element.questionLabel(), c);
-//
-//                c.gridx = 0;
-//                c.gridy = 1;
-//                panelForTheQuestion.add(element.answersPanel(), c);
-//
-//                length = panelForTheQuestion.getWidth();
-//                showQuestionPanel.add(panelForTheQuestion);
-//            }
-//            JScrollPane scrollPane = new JScrollPane(showQuestionPanel);
-//            scrollPane.setPreferredSize(new Dimension(370,length));
-//
-//            c.gridx = 0;
-//            c.gridy = 2;
-//            c.gridwidth = 2;
-//            resultPanel.add(scrollPane, c);
-//
-//            this.setSize(length+50, length+50);
-
+                this.pack();
+            }
         }
+        if (e.getSource() == backButton) {
+            showQuestionPanel.remove(el.get(currentNumber).questionPanel());
+            currentNumber--;
+            showQuestionPanel.add(el.get(currentNumber).questionPanel());
+            backButton.setEnabled(currentNumber>0);
+            forwardButton.setEnabled(currentNumber<el.size()-1);
+            this.pack();
+        }
+        if (e.getSource() == forwardButton) {
+            showQuestionPanel.remove(el.get(currentNumber).questionPanel());
+            currentNumber++;
+            showQuestionPanel.add(el.get(currentNumber).questionPanel());
+            backButton.setEnabled(currentNumber>0);
+            forwardButton.setEnabled(currentNumber<el.size()-1);
+            this.pack();
+        }
+
     }
 }
 

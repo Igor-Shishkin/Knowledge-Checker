@@ -14,7 +14,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class ResultWindow extends JFrame implements ActionListener {
-
+    Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    Color DARK_GREEN = new Color(0x066C00);
     JPanel resultPanel;
     JSONConnector connect;
     String[] listOfCategory;
@@ -50,9 +51,20 @@ public class ResultWindow extends JFrame implements ActionListener {
     private void setResultPanel() {
         exitButton = new JButton("EXIT");
         trainButton = new JButton("TRAIN");
-        trainButton.setPreferredSize(new Dimension(100, 25));
+        trainButton.setPreferredSize(new Dimension(100, 40));
         exitButton.addActionListener(this);
         trainButton.addActionListener(this);
+
+        exitButton.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
+        exitButton.setForeground(Color.RED);
+        trainButton.setBorder(BorderFactory.createLineBorder(DARK_GREEN, 3));
+        trainButton.setForeground(DARK_GREEN);
+        exitButton.setFont(MAIN_FONT.deriveFont(Font.BOLD, 35));
+        trainButton.setFont(MAIN_FONT.deriveFont(Font.BOLD, 35));
+
+        JPanel buttonsPanel = new JPanel(new GridLayout(1,2,5,5));
+        buttonsPanel.add(trainButton);
+        buttonsPanel.add(exitButton);
 
         String resultText;
         double percent = (double) score / quantityQuestions * 100;
@@ -63,7 +75,7 @@ public class ResultWindow extends JFrame implements ActionListener {
                         .concat("More work to be done :(<br>Good luck on your next try"),
                 score, quantityQuestions, percent);
         JLabel resultLabel = new JLabel(resultText);
-        resultLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.PLAIN, 30));
+        resultLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 30));
 
 
 
@@ -76,7 +88,7 @@ public class ResultWindow extends JFrame implements ActionListener {
         JLabel detailsLabel = new JLabel(detailsText);
 //        detailsLabel.setVisible(false);
         detailsLabel.setBorder(BorderFactory.createTitledBorder("Details"));
-        detailsLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.PLAIN, 25));
+        detailsLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 25));
 
 //        resultLabel.addMouseListener(new ShowDetailsLabelMouseListener(this, detailsLabel, listOfCategory.length,
 //                resultPanel));
@@ -98,16 +110,14 @@ public class ResultWindow extends JFrame implements ActionListener {
         c.gridwidth = 2;
         resultPanel.add(detailsLabel, c);
 
+
+
         c.insets = new Insets(10,10,10,10);
         c.gridx = 0;
         c.gridy = 4;
-        c.gridwidth = 1;
-        resultPanel.add(trainButton, c);
+        c.gridwidth = 2;
+        resultPanel.add(buttonsPanel, c);
 
-        c.gridx = 1;
-        c.gridy = 4;
-        c.gridwidth = 1;
-        resultPanel.add(exitButton, c);
     }
 
     @Override
