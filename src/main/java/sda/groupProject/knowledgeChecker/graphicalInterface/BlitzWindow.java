@@ -18,6 +18,8 @@ import java.util.TimerTask;
 import static java.lang.System.*;
 
 public class BlitzWindow extends JFrame implements ActionListener {
+    Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    Color DARK_GREEN = new Color(0x066C00);
     int TIME_FOR_TEST = 20;
     JPanel buttonsPanel, reviewPanel;
     JSeparator separator1, separator2;
@@ -92,13 +94,9 @@ public class BlitzWindow extends JFrame implements ActionListener {
             answerRadioButtons
                     .add(new JRadioButton(changeTextToHTML(listAnswersForTheQuestion.get(i).text(), ANSWER_LENGTH)));
             int finalI = i;
-            answerRadioButtons.get(i).addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    chosenAnswer = finalI;
-                    nextButton.setEnabled(true);
-                    out.println("Hello");
-                }
+            answerRadioButtons.get(i).addActionListener(e -> {
+                chosenAnswer = finalI;
+                nextButton.setEnabled(true);
             });
             answersGroupButton.add(answerRadioButtons.get(i));
             c.gridx = 0;
@@ -114,9 +112,9 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         JLabel rightExplanation = new JLabel();
         JLabel chosenExplanation = new JLabel();
-        rightExplanation.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.PLAIN, 20));
-        chosenExplanation.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.PLAIN, 20));
-        rightExplanation.setForeground(Color.green);
+        rightExplanation.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 20));
+        chosenExplanation.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 20));
+        rightExplanation.setForeground(DARK_GREEN);
         chosenExplanation.setForeground(Color.red);
 
         c.gridx = 0;
@@ -138,7 +136,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         JLabel questionLabel = new JLabel(changeTextToHTML(question.text(), MAX_LENGTH));
         questionLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        questionLabel.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 20));
+        questionLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 20));
 
 
 
@@ -231,7 +229,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         isRightAnswer = new JLabel();
         isRightAnswer.setVisible(false);
-        isRightAnswer.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 35));
+        isRightAnswer.setFont(MAIN_FONT.deriveFont(Font.BOLD, 35));
         isRightAnswer.setHorizontalAlignment(SwingConstants.CENTER);
 
         buttonsPanel = new JPanel(new GridLayout(2, 1, 10, 10));
@@ -245,7 +243,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
 //                component.setFont(ConstantsForStyle.MAIN_FONT);
 //            }
             if (component instanceof JRadioButton) {
-                component.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 19));
+                component.setFont(MAIN_FONT.deriveFont(Font.BOLD, 19));
             }
             if (component instanceof Container) {
                 setFontForComponents((Container) component);
@@ -264,19 +262,52 @@ public class BlitzWindow extends JFrame implements ActionListener {
                 dispose();
 
             } else {
+
                 int maxPoints = (el.get(currentNumber).question().advancement() == Advancement.BASIC) ? 1
                         : (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) ? 2
                         : 3;
                 maxScore = maxScore + maxPoints;
+
+
+                el.get(currentNumber).questionPanel().remove(buttonsPanel);
+                el.get(currentNumber).questionPanel().remove(progressBar);
+                el.get(currentNumber).questionPanel().remove(separator2);
+                el.get(currentNumber).questionPanel().remove(separator1);
+
+
+
+
                 if (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
 
                     int points = (el.get(currentNumber).question().advancement() == Advancement.BASIC) ? 1
                             : (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) ? 2
                             : 3;
 
+
+                    JLabel scoreLabel = new JLabel(Double.toString(points));
+                    JLabel levelLabel = new JLabel(el.get(currentNumber).question().advancement().toString());
+                    JLabel categoryLabel = new JLabel(el.get(currentNumber).question().category().categoryName());
+                    scoreLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    levelLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    categoryLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    scoreLabel.setForeground(DARK_GREEN);
+
+                    c.gridx = 9;
+                    c.gridy = 2;
+                    c.gridwidth = 1;
+                    c.gridheight = 1;
+                    el.get(currentNumber).questionPanel().add(scoreLabel, c);
+
+                    c.gridy = 3;
+                    el.get(currentNumber).questionPanel().add(levelLabel, c);
+
+                    c.gridy = 4;
+                    el.get(currentNumber).questionPanel().add(categoryLabel, c);
+
+
                     textForScoreLabel = score + " + " + points;
                     isRightAnswer.setText(textForScoreLabel);
-                    isRightAnswer.setForeground(Color.GREEN);
+                    isRightAnswer.setForeground(DARK_GREEN);
                     isRightAnswer.setVisible(true);
 
                     score += points;
@@ -292,9 +323,12 @@ public class BlitzWindow extends JFrame implements ActionListener {
                     }
                     el.get(currentNumber).answerRadioButtons()
                             .get(chosenAnswer)
-                            .setForeground(Color.GREEN);
+                            .setForeground(DARK_GREEN);
                     el.get(currentNumber).questionPanel().repaint();
                     el.get(currentNumber).scrollPane().repaint();
+
+
+
 
                     currentNumber++;
 
@@ -304,6 +338,27 @@ public class BlitzWindow extends JFrame implements ActionListener {
                     double points = (el.get(currentNumber).question().advancement() == Advancement.BASIC) ? -0.5
                             : (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) ? -1
                             : -1.5;
+
+                    JLabel scoreLabel = new JLabel(Double.toString(points));
+                    JLabel levelLabel = new JLabel(el.get(currentNumber).question().advancement().toString());
+                    JLabel categoryLabel = new JLabel(el.get(currentNumber).question().category().categoryName());
+                    scoreLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    levelLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    categoryLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+                    scoreLabel.setForeground(Color.RED);
+
+                    c.gridx = 9;
+                    c.gridy = 2;
+                    c.gridwidth = 1;
+                    c.gridheight = 1;
+                    el.get(currentNumber).questionPanel().add(scoreLabel, c);
+
+                    c.gridy = 3;
+                    el.get(currentNumber).questionPanel().add(levelLabel, c);
+
+                    c.gridy = 4;
+                    el.get(currentNumber).questionPanel().add(categoryLabel, c);
+
 
                     textForScoreLabel = score + " - " + Math.abs(points);
                     isRightAnswer.setText(textForScoreLabel);
@@ -321,7 +376,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
                                     .setText(changeTextToHTML(answer.explanation(), MAX_LENGTH));
                             el.get(currentNumber).answerRadioButtons()
                                     .get(el.get(currentNumber).listAnswersForTheQuestion().indexOf(answer))
-                                    .setForeground(Color.GREEN);
+                                    .setForeground(DARK_GREEN);
                         }
                     }
                     el.get(currentNumber).answerRadioButtons()

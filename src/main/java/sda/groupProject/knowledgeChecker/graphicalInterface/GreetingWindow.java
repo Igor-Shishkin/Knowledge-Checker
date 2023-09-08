@@ -13,8 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 
 public class GreetingWindow extends JFrame implements ActionListener {
-    static int CURRENT_LEVEL;
-    static String CURRENT_CATEGORY;
+    Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    Color DARK_GREEN = new Color(0x066C00);
+    int CURRENT_LEVEL;
+    String CURRENT_CATEGORY;
 
     JLayeredPane mainPane;
     JPanel greetingPanel, categoryPanel, levelPanel, quantityQuestionPanel;
@@ -52,13 +54,13 @@ public class GreetingWindow extends JFrame implements ActionListener {
     private void setFontForComponents(Container container) {
         for (Component component : container.getComponents()) {
             if (component instanceof JLabel || component instanceof JComboBox<?>) {
-                component.setFont(ConstantsForStyle.MAIN_FONT);
+                component.setFont(MAIN_FONT);
             }
             if (component instanceof JRadioButton) {
-                component.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 19));
+                component.setFont(MAIN_FONT.deriveFont(Font.BOLD, 19));
             }
             if (component instanceof JCheckBox) {
-                component.setFont(ConstantsForStyle.MAIN_FONT.deriveFont(Font.BOLD, 19));
+                component.setFont(MAIN_FONT.deriveFont(Font.BOLD, 19));
             }
             if (component instanceof Container) {
                 setFontForComponents((Container) component);
@@ -143,7 +145,6 @@ public class GreetingWindow extends JFrame implements ActionListener {
         categoryPanel = new JPanel(new GridLayout(listOfCategory.length, 1, 5, 5));
         categoryPanel.setBorder(BorderFactory.createTitledBorder("Choose categories"));
 
-        System.out.println(Arrays.toString(listOfCategory));
         categoriesCheckBoxList = new ArrayList<>();
 
         for (int i = 0; i < listOfCategory.length; i++) {
