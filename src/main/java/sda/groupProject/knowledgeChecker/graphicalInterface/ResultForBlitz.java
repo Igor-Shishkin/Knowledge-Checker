@@ -10,23 +10,24 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class ResultForBlitz extends JFrame implements ActionListener {
-    Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
-    Color DARK_GREEN = new Color(0x066C00);
-    Color DARK_BLUE = new Color(0x001A60);
-    JSONConnector connect;
-    JLabel resultLabel;
-    List<GraficalElementsOfQuestion> el;
-    double score, maxScore;
-    int currentNumber;
-    JPanel resultPanel, showQuestionPanel, reviewPanel;
-    String[] listOfCategory;
-    Advancement advancement;
-    JButton exitButton, trainButton, seeTestButton, forwardButton, backButton;
-    GridBagConstraints c;
-    String seeAnswers = "SEE MY ANSWERS";
-    String seeResult = "SEE MY RESULT";
-
-    boolean isTimeOver = false;
+    private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    private final Color DARK_GREEN = new Color(0x066C00);
+    private final JSONConnector connect;
+    private JLabel resultLabel;
+    private final List<GraficalElementsOfQuestion> el;
+    private final double score;
+    private final double maxScore;
+    private int currentNumber;
+    private JPanel resultPanel;
+    private JPanel showQuestionPanel;
+    private JPanel reviewPanel;
+    private JButton exitButton;
+    private JButton trainButton;
+    private JButton seeTestButton;
+    private JButton forwardButton;
+    private JButton backButton;
+    private GridBagConstraints c;
+    private final String seeAnswers = "SEE MY ANSWERS";
 
     public ResultForBlitz(JSONConnector connect, List<GraficalElementsOfQuestion> el, double score, int currentNumber,
                           double maxScore) {
@@ -101,7 +102,10 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         seeTestButton.setBorder(BorderFactory.createLineBorder(Color.blue, 3));
         seeTestButton.setForeground(Color.blue);
 
-
+        JPanel buttonsPanel = new JPanel(new GridLayout(1,3,5,5));
+        buttonsPanel.add(trainButton);
+        buttonsPanel.add(exitButton);
+        buttonsPanel.add(seeTestButton);
 
 
         String resultText;
@@ -117,10 +121,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         resultLabel = new JLabel(resultText);
         resultLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 30));
 
-        JPanel buttonsPanel = new JPanel(new GridLayout(1,3,5,5));
-        buttonsPanel.add(trainButton);
-        buttonsPanel.add(exitButton);
-        buttonsPanel.add(seeTestButton);
+
 
         resultPanel = new JPanel(new GridBagLayout());
         c = new GridBagConstraints();
@@ -165,6 +166,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
                 showQuestionPanel.add(el.get(currentNumber).questionPanel());
                 this.pack();
 
+                String seeResult = "SEE MY RESULT";
                 seeTestButton.setText(seeResult);
             }  else {
                 reviewPanel.setVisible(false);

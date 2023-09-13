@@ -2,45 +2,53 @@ package sda.groupProject.knowledgeChecker.graphicalInterface;
 
 import sda.groupProject.knowledgeChecker.data.Advancement;
 import sda.groupProject.knowledgeChecker.data.JSONConnector;
-import sda.groupProject.knowledgeChecker.graphicalInterface.listeners.ShowDetailsLabelMouseListener;
 
 import javax.swing.*;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.util.List;
 
 public class ResultWindow extends JFrame implements ActionListener {
-    Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
-    Color DARK_GREEN = new Color(0x066C00);
-    JPanel resultPanel;
-    JSONConnector connect;
+
+
+    private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    private final Color DARK_GREEN = new Color(0x066C00);
+    private final JSONConnector connect;
+    private final List<GraficalElementsOfQuestion> listOfPanels;
+    private final int score;
+    private final int quantityQuestions;
+    private int currentNumber;
+    private JLabel resultLabel;
+    private JPanel resultPanel;
+    private JPanel showQuestionPanel;
+    private JPanel reviewPanel;
+    private JButton exitButton;
+    private JButton trainButton;
+    private JButton seeTestButton;
+    private JButton forwardButton;
+    private JButton backButton;
+    private GridBagConstraints c;
+    private final String seeAnswers = "SEE MY ANSWERS";
     String[] listOfCategory;
-    int score, quantityQuestions;
     Advancement advancement;
-    JButton exitButton, trainButton, detailsButton;
 
 
-    public ResultWindow(JSONConnector connect, int score, int quantityQuestions,
-                        Advancement advancement, String[] listOfCategory) {
+    private ResultWindow(JSONConnector connect, int score, int quantityQuestions, Advancement advancement,
+                        String[] listOfCategory, List<GraficalElementsOfQuestion> listOfPanels) {
         this.connect = connect;
         this.score = score;
         this.quantityQuestions = quantityQuestions;
         this.advancement = advancement;
         this.listOfCategory = listOfCategory;
-
+        this.listOfPanels = listOfPanels;
 
         setResultPanel();
-
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
         this.add(resultPanel);
 
 
-//        this.setSize(new Dimension(WIDTH_PANE, HEIGHT_PANE));
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
@@ -51,9 +59,12 @@ public class ResultWindow extends JFrame implements ActionListener {
     private void setResultPanel() {
         exitButton = new JButton("EXIT");
         trainButton = new JButton("TRAIN");
+        seeTestButton = new JButton(seeAnswers);
+
         trainButton.setPreferredSize(new Dimension(100, 40));
         exitButton.addActionListener(this);
         trainButton.addActionListener(this);
+        seeTestButton.addActionListener(this);
 
         exitButton.setBorder(BorderFactory.createLineBorder(Color.RED, 3));
         exitButton.setForeground(Color.RED);
@@ -61,10 +72,14 @@ public class ResultWindow extends JFrame implements ActionListener {
         trainButton.setForeground(DARK_GREEN);
         exitButton.setFont(MAIN_FONT.deriveFont(Font.BOLD, 35));
         trainButton.setFont(MAIN_FONT.deriveFont(Font.BOLD, 35));
+        seeTestButton.setFont(MAIN_FONT.deriveFont(Font.BOLD, 35));
+        seeTestButton.setBorder(BorderFactory.createLineBorder(Color.blue, 3));
+        seeTestButton.setForeground(Color.blue);
 
         JPanel buttonsPanel = new JPanel(new GridLayout(1,2,5,5));
         buttonsPanel.add(trainButton);
         buttonsPanel.add(exitButton);
+        buttonsPanel.add(seeTestButton);
 
         String resultText;
         double percent = (double) score / quantityQuestions * 100;
@@ -72,9 +87,9 @@ public class ResultWindow extends JFrame implements ActionListener {
                         .concat("This is a great result, congratulations!"),
                 score, quantityQuestions, percent)
                 : String.format("<html>You scored %d points out of %d<br>or %3.1f percent.<br>"
-                        .concat("More work to be done :(<br>Good luck on your next try"),
+                        .concat("Much work to be done :(<br>Good luck on your next try"),
                 score, quantityQuestions, percent);
-        JLabel resultLabel = new JLabel(resultText);
+        resultLabel = new JLabel(resultText);
         resultLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 30));
 
 
@@ -86,15 +101,11 @@ public class ResultWindow extends JFrame implements ActionListener {
         String detailsText = String.format("<html>Categories:<br> %s<br>Level: %s<br>Quantity of questions: %d</html>",
                 categories.substring(0,categories.length()-4), advancement, quantityQuestions);
         JLabel detailsLabel = new JLabel(detailsText);
-//        detailsLabel.setVisible(false);
         detailsLabel.setBorder(BorderFactory.createTitledBorder("Details"));
         detailsLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 25));
 
-//        resultLabel.addMouseListener(new ShowDetailsLabelMouseListener(this, detailsLabel, listOfCategory.length,
-//                resultPanel));
-
         resultPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints c = new GridBagConstraints();
+        c = new GridBagConstraints();
         c.fill = GridBagConstraints.HORIZONTAL;
         c.insets = new Insets(10,10,10,10);
 
@@ -103,14 +114,11 @@ public class ResultWindow extends JFrame implements ActionListener {
         c.gridwidth = 2;
         resultPanel.add(resultLabel, c);
 
-
         c.insets = new Insets(20,10,10,10);
         c.gridx = 0;
         c.gridy = 2;
         c.gridwidth = 2;
         resultPanel.add(detailsLabel, c);
-
-
 
         c.insets = new Insets(10,10,10,10);
         c.gridx = 0;
@@ -129,5 +137,88 @@ public class ResultWindow extends JFrame implements ActionListener {
         if (e.getSource()==exitButton) {
             System.exit(1);
         }
+        if (e.getSource() == seeTestButton) {
+
+            if (seeTestButton.getText().equals(seeAnswers)) {
+
+                reviewPanel.setVisible(true);
+                resultLabel.setVisible(false);
+
+                if (currentNumber == listOfPanels.size()) {
+                    currentNumber--;
+                }
+                forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
+                showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+                this.pack();
+
+                String seeResult = "SEE MY RESULT";
+                seeTestButton.setText(seeResult);
+            }  else {
+                reviewPanel.setVisible(false);
+                resultLabel.setVisible(true);
+
+                showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+                seeTestButton.setText(seeAnswers);
+
+                this.pack();
+            }
+        }
+        if (e.getSource() == backButton) {
+            showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+            currentNumber--;
+            showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+            backButton.setEnabled(currentNumber>0);
+            forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
+            this.pack();
+        }
+        if (e.getSource() == forwardButton) {
+            showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+            currentNumber++;
+            showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+            backButton.setEnabled(currentNumber>0);
+            forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
+            this.pack();
+        }
+
+    }
+
+
+
+    public static class Builder {
+        private JSONConnector connect;
+        private int score;
+        private int quantityQuestions;
+        private Advancement advancement;
+        private String[] listOfCategory;
+        private List<GraficalElementsOfQuestion> listOfPanels;
+
+        public Builder withConnect (JSONConnector connect){
+            this.connect = connect;
+            return this;
+        }
+        public Builder withScore (int score){
+            this.score = score;
+            return this;
+        }
+        public Builder withQuantityQuestions (int quantityQuestions){
+            this.quantityQuestions = quantityQuestions;
+            return this;
+        }
+        public Builder withAdvancement (Advancement advancement){
+            this.advancement = advancement;
+            return this;
+        }
+        public Builder withListOfCategory (String[] listOfCategory){
+            this.listOfCategory = listOfCategory;
+            return this;
+        }
+        public Builder withListOfPanels (List<GraficalElementsOfQuestion> listOfPanels){
+            this.listOfPanels = listOfPanels;
+            return this;
+        }
+        public ResultWindow build() {
+            return new ResultWindow(connect, score, quantityQuestions, advancement, listOfCategory, listOfPanels);
+        }
+
     }
 }

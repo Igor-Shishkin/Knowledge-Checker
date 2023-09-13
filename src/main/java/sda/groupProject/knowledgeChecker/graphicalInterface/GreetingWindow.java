@@ -1,6 +1,7 @@
 package sda.groupProject.knowledgeChecker.graphicalInterface;
 
 import sda.groupProject.knowledgeChecker.data.Advancement;
+import sda.groupProject.knowledgeChecker.data.FilterListOfQuestions;
 import sda.groupProject.knowledgeChecker.data.JSONConnector;
 import sda.groupProject.knowledgeChecker.data.Question;
 
@@ -20,7 +21,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
 
     JLayeredPane mainPane;
     JPanel greetingPanel, categoryPanel, levelPanel, quantityQuestionPanel;
-    JButton startButton, doneButton, nextButton, exitButton;
+    JButton startButton;
     JRadioButton levelBasicRadioButton, levelMediumRadioButton, levelExpertRadioButton,
             quantityQuestion5RadioButton, quantityQuestion10RadioButton, quantityQuestion15RadioButton;
     List<JCheckBox> categoriesCheckBoxList;
@@ -34,16 +35,13 @@ public class GreetingWindow extends JFrame implements ActionListener {
     public GreetingWindow(JSONConnector connect) {
         this.connect = connect;
 
-
         setGreetingPanel();
-
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
         this.add(greetingPanel);
 
         setFontForComponents(this);
 
-//        this.setSize(new Dimension(WIDTH_PANE, HEIGHT_PANE));
         this.pack();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
@@ -62,8 +60,8 @@ public class GreetingWindow extends JFrame implements ActionListener {
             if (component instanceof JCheckBox) {
                 component.setFont(MAIN_FONT.deriveFont(Font.BOLD, 19));
             }
-            if (component instanceof Container) {
-                setFontForComponents((Container) component);
+            if (component instanceof Container innerContainer) {
+                setFontForComponents(innerContainer);
             }
         }
     }
@@ -73,10 +71,6 @@ public class GreetingWindow extends JFrame implements ActionListener {
         setComponentsForLevelPanel();
         setComponentsForQuantityQuestionsPanel();
         setComponentsForCategoryPanel();
-
-
-//        categoriesComboBox = new JComboBox<>(new String[]{"JAVA_LANGUAGE", "GENERAL",
-//                    "DESIGN_PATTERNS", "SPRING", "ALL"});
 
         startButton = new JButton("START!");
         startButton.setFont(new Font(null, Font.BOLD, 30));
@@ -149,18 +143,14 @@ public class GreetingWindow extends JFrame implements ActionListener {
 
         for (int i = 0; i < listOfCategory.length; i++) {
             categoriesCheckBoxList.add(new JCheckBox(listOfCategory[i]));
-            categoriesCheckBoxList.get(i).addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    isCategoryChosen = false;
-                    System.out.println("category");
-                    for (JCheckBox checkBox : categoriesCheckBoxList) {
-                        if (checkBox.isSelected()) {
-                            isCategoryChosen = true;
-                        }
+            categoriesCheckBoxList.get(i).addActionListener(e -> {
+                isCategoryChosen = false;
+                for (JCheckBox checkBox : categoriesCheckBoxList) {
+                    if (checkBox.isSelected()) {
+                        isCategoryChosen = true;
                     }
-                    startButton.setEnabled(isCategoryChosen && isLevelChosen && isQuantityChosen);
                 }
+                startButton.setEnabled(isCategoryChosen && isLevelChosen && isQuantityChosen);
             });
             categoryPanel.add(categoriesCheckBoxList.get(i));
         }
@@ -230,10 +220,12 @@ public class GreetingWindow extends JFrame implements ActionListener {
                     chosenCategory[index++] = checkBox.getText();
                 }
             }
-            listOfQuestions = connect.getListOfQuestions(advancement, chosenCategory, quantityQuestions);
+
+            FilterListOfQuestions filterListOfQuestions = new FilterListOfQuestions(connect.getListOfQuestions());
+            listOfQuestions = filterListOfQuestions.getListOfQuestions(advancement, chosenCategory, quantityQuestions);
 
             if (quantityQuestions > listOfQuestions.size()) {
-                if (listOfQuestions.size() > 0) {
+                if (!listOfQuestions.isEmpty()) {
                     quantityQuestions = listOfQuestions.size();
                     String message = String.format("There are only %d questions for the parameter you have chosen.",
                             quantityQuestions);
@@ -255,7 +247,6 @@ public class GreetingWindow extends JFrame implements ActionListener {
                 e.getSource() == levelMediumRadioButton ||
                 e.getSource() == levelExpertRadioButton) {
             isLevelChosen = true;
-            System.out.println("level");
             if (isCategoryChosen && isQuantityChosen) {
                 startButton.setEnabled(true);
             }
@@ -264,7 +255,6 @@ public class GreetingWindow extends JFrame implements ActionListener {
                 e.getSource() == quantityQuestion15RadioButton ||
                 e.getSource() == quantityQuestion10RadioButton) {
             isQuantityChosen = true;
-            System.out.println("quantity");
             if (isCategoryChosen && isLevelChosen) {
                 startButton.setEnabled(true);
             }

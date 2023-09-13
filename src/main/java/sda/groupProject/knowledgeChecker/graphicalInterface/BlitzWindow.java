@@ -1,10 +1,7 @@
 package sda.groupProject.knowledgeChecker.graphicalInterface;
 
 import sda.groupProject.knowledgeChecker.Main;
-import sda.groupProject.knowledgeChecker.data.Advancement;
-import sda.groupProject.knowledgeChecker.data.Answer;
-import sda.groupProject.knowledgeChecker.data.JSONConnector;
-import sda.groupProject.knowledgeChecker.data.Question;
+import sda.groupProject.knowledgeChecker.data.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,23 +15,27 @@ import java.util.TimerTask;
 import static java.lang.System.*;
 
 public class BlitzWindow extends JFrame implements ActionListener {
-    Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
-    Color DARK_GREEN = new Color(0x066C00);
-    int TIME_FOR_TEST = 20;
-    JPanel buttonsPanel, reviewPanel;
-    JSeparator separator1, separator2;
-    JButton nextButton;
-    JLabel isRightAnswer;
-    double score, maxScore;
-    int currentNumber = 0, chosenAnswer;
-    JSONConnector connect;
-    List<Question> listOfQuestions;
-    GridBagConstraints c = new GridBagConstraints();
-    JProgressBar progressBar;
-    int MAX_LENGTH = 60;
-    int ANSWER_LENGTH = 50;
-    boolean isEnd = false;
-    List<GraficalElementsOfQuestion> el = new ArrayList<>();
+    private Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    private Color DARK_GREEN = new Color(0x0CB402);
+    private int TIME_FOR_TEST = 20;
+    private int MAX_LENGTH = 60;
+    private int ANSWER_LENGTH = 50;
+
+    private JPanel buttonsPanel;
+    private JSeparator separator1;
+    private JSeparator separator2;
+    private JButton nextButton;
+    private JLabel isRightAnswer;
+    private double score;
+    private double maxScore;
+    private int currentNumber = 0;
+    private int chosenAnswer;
+    private final JSONConnector connect;
+    private final List<Question> listOfQuestions;
+    private final GridBagConstraints c = new GridBagConstraints();
+    private JProgressBar progressBar;
+
+    private final List<GraficalElementsOfQuestion> el = new ArrayList<>();
 
 
     BlitzWindow(JSONConnector connect,  List<Question> listOfQuestions) {
@@ -46,17 +47,13 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         addNewElementsOfQuestion();
 
-        reviewPanel = new JPanel(new GridBagLayout());
-
         Timer timer = new Timer();
         TimerTask repeatedTask = new TimerForProgressBar(progressBar, el, nextButton, currentNumber);
         timer.scheduleAtFixedRate(repeatedTask, 1000,1000);
 
-
         this.setLayout(new GridLayout(1, 1, 5, 5));
         this.add(el.get(currentNumber).scrollPane());
 
-//        this.setSize(new Dimension(WIDTH_PANE, HEIGHT_PANE));
         this.pack();
         this.setLayout(new GridLayout(1, 1, 10, 10));
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -79,12 +76,6 @@ public class BlitzWindow extends JFrame implements ActionListener {
         Question question = listOfQuestions.get(currentNumber);
         ButtonGroup answersGroupButton = new ButtonGroup();
         List<JRadioButton> answerRadioButtons = new ArrayList<>();
-//        setElementsToExplanationPanel();
-
-
-        String text = changeTextToHTML(listOfQuestions.get(0).text(), MAX_LENGTH);
-//        JLabel questionLabel = new JLabel(text);
-
 
         JPanel answersPanel = new JPanel(new GridBagLayout());
 
@@ -92,7 +83,8 @@ public class BlitzWindow extends JFrame implements ActionListener {
         c.anchor = GridBagConstraints.WEST;
         for (int i = 0; i < listAnswersForTheQuestion.size(); i++) {
             answerRadioButtons
-                    .add(new JRadioButton(changeTextToHTML(listAnswersForTheQuestion.get(i).text(), ANSWER_LENGTH)));
+                    .add(new JRadioButton(HTMLConverter
+                            .changeTextToHTML(listAnswersForTheQuestion.get(i).text(), ANSWER_LENGTH)));
             int finalI = i;
             answerRadioButtons.get(i).addActionListener(e -> {
                 chosenAnswer = finalI;
@@ -130,11 +122,11 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         JPanel codePanel = new JPanel(new GridLayout(1, 1, 5, 5));
         codePanel.setBorder(BorderFactory.createLoweredSoftBevelBorder());
-        JLabel codeLabel = new JLabel(changeTextToHTML(question.code(), MAX_LENGTH));
+        JLabel codeLabel = new JLabel(HTMLConverter.changeTextToHTML(question.code(), MAX_LENGTH));
         codePanel.add(codeLabel);
         codePanel.setVisible(question.code() != null);
 
-        JLabel questionLabel = new JLabel(changeTextToHTML(question.text(), MAX_LENGTH));
+        JLabel questionLabel = new JLabel(HTMLConverter.changeTextToHTML(question.text(), MAX_LENGTH));
         questionLabel.setHorizontalAlignment(SwingConstants.CENTER);
         questionLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 20));
 
@@ -312,7 +304,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
                     score += points;
 
-                    el.get(currentNumber).rightExplanation().setText(changeTextToHTML
+                    el.get(currentNumber).rightExplanation().setText(HTMLConverter.changeTextToHTML
                             (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).explanation(), MAX_LENGTH));
                     el.get(currentNumber).explanationPanel().setVisible(true);
                     separator1.setVisible(true);
@@ -373,7 +365,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
                     for (Answer answer : el.get(currentNumber).listAnswersForTheQuestion()) {
                         if (answer.correct()) {
                             el.get(currentNumber).rightExplanation()
-                                    .setText(changeTextToHTML(answer.explanation(), MAX_LENGTH));
+                                    .setText(HTMLConverter.changeTextToHTML(answer.explanation(), MAX_LENGTH));
                             el.get(currentNumber).answerRadioButtons()
                                     .get(el.get(currentNumber).listAnswersForTheQuestion().indexOf(answer))
                                     .setForeground(DARK_GREEN);
@@ -383,7 +375,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
                             .get(chosenAnswer)
                             .setForeground(Color.RED);
                     el.get(currentNumber).chosenExplanation().setVisible(true);
-                    el.get(currentNumber).chosenExplanation().setText(changeTextToHTML
+                    el.get(currentNumber).chosenExplanation().setText(HTMLConverter.changeTextToHTML
                             (el.get(currentNumber).listAnswersForTheQuestion()
                                     .get(chosenAnswer).explanation(), MAX_LENGTH));
                     el.get(currentNumber).explanationPanel().setVisible(true);
@@ -411,36 +403,6 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         }
     }
-
-    public String changeTextToHTML(String text, int lineLength) {
-        if (text == null || text.isEmpty() || lineLength <= 0) {
-            return text;
-        }
-
-        StringBuilder result = new StringBuilder("<html>");
-        int startIndex = 0;
-
-        while (startIndex < text.length()) {
-            int endIndex = Math.min(startIndex + lineLength, text.length());
-            String chunk = text.substring(startIndex, endIndex);
-
-            if (endIndex < text.length()) {
-                int lastSpaceIndex = chunk.lastIndexOf(' ');
-
-                if (lastSpaceIndex != -1) {
-                    endIndex = startIndex + lastSpaceIndex;
-                    chunk = chunk.substring(0, lastSpaceIndex);
-                }
-            }
-
-            result.append(chunk).append("<br>");
-            startIndex = endIndex + 1;
-        }
-
-        result.append("</html>");
-        return result.toString();
-    }
-
 }
 
 
