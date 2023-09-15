@@ -10,27 +10,32 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class GreetingWindow extends JFrame implements ActionListener {
-    Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
-    Color DARK_GREEN = new Color(0x066C00);
-    int CURRENT_LEVEL;
-    String CURRENT_CATEGORY;
-
-    JLayeredPane mainPane;
-    JPanel greetingPanel, categoryPanel, levelPanel, quantityQuestionPanel;
-    JButton startButton;
-    JRadioButton levelBasicRadioButton, levelMediumRadioButton, levelExpertRadioButton,
-            quantityQuestion5RadioButton, quantityQuestion10RadioButton, quantityQuestion15RadioButton;
-    List<JCheckBox> categoriesCheckBoxList;
-    JLabel greetingLabel;
-    JSONConnector connect;
-    String[] listOfCategory;
-    List<Question> listOfQuestions;
-    JButton blitzButton;
-    boolean isLevelChosen = false, isCategoryChosen = false, isQuantityChosen = false;
+    private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    private JPanel greetingPanel;
+    private JPanel categoryPanel;
+    private JPanel levelPanel;
+    private JPanel quantityQuestionPanel;
+    private JButton startButton;
+    private JRadioButton levelBasicRadioButton;
+    private JRadioButton levelMediumRadioButton;
+    private JRadioButton levelExpertRadioButton;
+    private JRadioButton quantityQuestion5RadioButton;
+    private JRadioButton quantityQuestion10RadioButton;
+    private JRadioButton quantityQuestion15RadioButton;
+    private List<JCheckBox> categoriesCheckBoxList;
+    private String[] chosenCategory;
+    private transient List<Question> listOfQuestions;
+    private int quantityOfQuestions;
+    private Advancement advancement;
+    private final transient JSONConnector connect;
+    private String[] listOfCategory;
+    private JButton blitzButton;
+    private boolean isLevelChosen = false;
+    private boolean isCategoryChosen = false;
+    private boolean isQuantityChosen = false;
 
     public GreetingWindow(JSONConnector connect) {
         this.connect = connect;
@@ -43,11 +48,126 @@ public class GreetingWindow extends JFrame implements ActionListener {
         setFontForComponents(this);
 
         this.pack();
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setTitle("CHECK YOUR KNOWLEDGE");
         this.setVisible(true);
     }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == startButton) {
+            actionIfStartButtonIsPressed();
+
+
+            if (quantityOfQuestions > listOfQuestions.size()) {
+                actionIfQuestionAreLessThenRequired();
+
+            } else {
+                new GameWindow.Builder()
+                        .withChosenCategory(chosenCategory)
+                        .withAdvancement(advancement)
+                        .withConnect(connect)
+                        .withQuantityQuestions(quantityOfQuestions)
+                        .withListOfQuestions(listOfQuestions)
+                        .build();
+
+                dispose();
+            }
+        }
+        if (e.getSource() == levelBasicRadioButton ||
+                e.getSource() == levelMediumRadioButton ||
+                e.getSource() == levelExpertRadioButton) {
+            isLevelChosen = true;
+            if (isCategoryChosen && isQuantityChosen) {
+                startButton.setEnabled(true);
+            }
+        }
+        if (e.getSource() == quantityQuestion5RadioButton ||
+                e.getSource() == quantityQuestion15RadioButton ||
+                e.getSource() == quantityQuestion10RadioButton) {
+            isQuantityChosen = true;
+            if (isCategoryChosen && isLevelChosen) {
+                startButton.setEnabled(true);
+            }
+        }
+        if (e.getSource() == blitzButton) {
+            actionIfBlitzButtonIsPressed();
+        }
+    }
+
+    private void actionIfBlitzButtonIsPressed() {
+        FilterListOfQuestions filterListOfQuestions = new FilterListOfQuestions(connect.getListOfQuestions());
+        listOfQuestions = filterListOfQuestions.getShuffledListOfQuestion();
+
+        new BlitzWindow(connect, listOfQuestions);
+        dispose();
+    }
+
+    private void actionIfQuestionAreLessThenRequired() {
+        if (!listOfQuestions.isEmpty()) {
+            quantityOfQuestions = listOfQuestions.size();
+            String message = String.format("There are only %d questions for the parameter you have chosen.",
+                    quantityOfQuestions);
+            JOptionPane.showMessageDialog(this,
+                    message, "Warning", JOptionPane.ERROR_MESSAGE);
+
+
+            new GameWindow.Builder()
+                    .withChosenCategory(chosenCategory)
+                    .withAdvancement(advancement)
+                    .withConnect(connect)
+                    .withQuantityQuestions(quantityOfQuestions)
+                    .withListOfQuestions(listOfQuestions)
+                    .build();
+
+            dispose();
+        } else {
+            String message = "There aren't questions for\nthe parameter you have chosen.";
+            JOptionPane.showMessageDialog(this,
+                    message, "Warning", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void actionIfStartButtonIsPressed() {
+        quantityOfQuestions = getQuantityOfQuestions();
+
+        int quantityChosenCategories = 0;
+        for (JCheckBox checkBox : categoriesCheckBoxList) {
+            quantityChosenCategories = (checkBox.isSelected())
+                    ? quantityChosenCategories + 1 : quantityChosenCategories;
+        }
+
+        chosenCategory = new String[quantityChosenCategories];
+        int index = 0;
+        for (JCheckBox checkBox : categoriesCheckBoxList) {
+            if (checkBox.isSelected()) {
+                chosenCategory[index++] = checkBox.getText();
+            }
+        }
+        advancement = getAdvancement();
+
+        FilterListOfQuestions filterListOfQuestions = new FilterListOfQuestions(connect.getListOfQuestions());
+        listOfQuestions = filterListOfQuestions.getListOfQuestions(advancement, chosenCategory, quantityOfQuestions);
+    }
+
+    private Advancement getAdvancement() {
+        if (levelBasicRadioButton.isSelected()) {
+            return Advancement.BASIC;
+        } else if (levelMediumRadioButton.isSelected()) {
+            return Advancement.MEDIUM;
+        }
+        return Advancement.EXPERT;
+    }
+
+    private int getQuantityOfQuestions() {
+        if (quantityQuestion5RadioButton.isSelected()) {
+            return 5;
+        } else if (quantityQuestion10RadioButton.isSelected()) {
+            return 10;
+        }
+        return 15;
+    }
+
 
     private void setFontForComponents(Container container) {
         for (Component component : container.getComponents()) {
@@ -67,6 +187,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
     }
 
     private void setGreetingPanel() {
+        JLabel greetingLabel;
 
         setComponentsForLevelPanel();
         setComponentsForQuantityQuestionsPanel();
@@ -197,77 +318,6 @@ public class GreetingWindow extends JFrame implements ActionListener {
         levelPanel.add(levelBasicRadioButton);
         levelPanel.add(levelMediumRadioButton);
         levelPanel.add(levelExpertRadioButton);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == startButton) {
-            int quantityQuestions = (quantityQuestion5RadioButton.isSelected()) ? 5
-                    : (quantityQuestion10RadioButton.isSelected()) ? 10
-                    : 15;
-            int quantityChosenCategories = 0;
-            for (JCheckBox checkBox : categoriesCheckBoxList) {
-                quantityChosenCategories = (checkBox.isSelected())
-                        ? quantityChosenCategories + 1 : quantityChosenCategories;
-            }
-            Advancement advancement = (levelBasicRadioButton.isSelected()) ? Advancement.BASIC
-                    : (levelMediumRadioButton.isSelected()) ? Advancement.MEDIUM
-                    : Advancement.EXPERT;
-            String[] chosenCategory = new String[quantityChosenCategories];
-            int index = 0;
-            for (JCheckBox checkBox : categoriesCheckBoxList) {
-                if (checkBox.isSelected()) {
-                    chosenCategory[index++] = checkBox.getText();
-                }
-            }
-
-            FilterListOfQuestions filterListOfQuestions = new FilterListOfQuestions(connect.getListOfQuestions());
-            listOfQuestions = filterListOfQuestions.getListOfQuestions(advancement, chosenCategory, quantityQuestions);
-
-            if (quantityQuestions > listOfQuestions.size()) {
-                if (!listOfQuestions.isEmpty()) {
-                    quantityQuestions = listOfQuestions.size();
-                    String message = String.format("There are only %d questions for the parameter you have chosen.",
-                            quantityQuestions);
-                    JOptionPane.showMessageDialog(this,
-                            message, "Warning", JOptionPane.ERROR_MESSAGE);
-                    new GameWindow(chosenCategory, advancement, quantityQuestions, connect, listOfQuestions);
-                    dispose();
-                } else {
-                    String message = "There aren't questions for\nthe parameter you have chosen.";
-                    JOptionPane.showMessageDialog(this,
-                            message, "Warning", JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
-                new GameWindow(chosenCategory, advancement, quantityQuestions, connect, listOfQuestions);
-                dispose();
-            }
-        }
-        if (e.getSource() == levelBasicRadioButton ||
-                e.getSource() == levelMediumRadioButton ||
-                e.getSource() == levelExpertRadioButton) {
-            isLevelChosen = true;
-            if (isCategoryChosen && isQuantityChosen) {
-                startButton.setEnabled(true);
-            }
-        }
-        if (e.getSource() == quantityQuestion5RadioButton ||
-                e.getSource() == quantityQuestion15RadioButton ||
-                e.getSource() == quantityQuestion10RadioButton) {
-            isQuantityChosen = true;
-            if (isCategoryChosen && isLevelChosen) {
-                startButton.setEnabled(true);
-            }
-        }
-        if (e.getSource() == blitzButton) {
-
-            FilterListOfQuestions filterListOfQuestions = new FilterListOfQuestions(connect.getListOfQuestions());
-            listOfQuestions = filterListOfQuestions.getShuffledListOfQuestion();
-
-            new BlitzWindow(connect, listOfQuestions);
-            dispose();
-
-        }
     }
 }
 

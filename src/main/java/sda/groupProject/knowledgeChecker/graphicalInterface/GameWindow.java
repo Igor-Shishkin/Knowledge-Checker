@@ -9,8 +9,6 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.System.*;
-
 public class GameWindow extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
     private final Color DARK_GREEN = new Color(0x066C00);
@@ -18,8 +16,6 @@ public class GameWindow extends JFrame implements ActionListener {
     private final int MAX_LENGTH = 60;
     private final int ANSWER_LENGTH = 50;
     private JPanel buttonsPanel;
-    private JSeparator separator1;
-    private JSeparator separator2;
     private JButton doneButton;
     private JButton nextButton;
     private JLabel isRightAnswer;
@@ -28,15 +24,15 @@ public class GameWindow extends JFrame implements ActionListener {
     private int currentNumber = 0;
     private int chosenAnswer;
     private final String[] chosenCategory;
-    private final JSONConnector connect;
-    private final List<Question> listOfQuestions;
+    private final transient JSONConnector connect;
+    private final transient List<Question> listOfQuestions;
     private final GridBagConstraints c = new GridBagConstraints();
     private JProgressBar progressBar;
 
-    private final List<GraficalElementsOfQuestion> el = new ArrayList<>();
+    private final List<GraphicalElementsOfQuestion> listWithPanels = new ArrayList<>();
 
 
-    GameWindow(String[] chosenCategory, Advancement advancement, int quantityQuestions, JSONConnector connect,
+    private GameWindow(String[] chosenCategory, Advancement advancement, int quantityQuestions, JSONConnector connect,
                List<Question> listOfQuestions) {
         this.connect = connect;
         this.chosenCategory = chosenCategory;
@@ -50,15 +46,154 @@ public class GameWindow extends JFrame implements ActionListener {
         addNewElementsOfQuestionToEL();
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
-        this.add(el.get(currentNumber).scrollPane());
+        this.add(listWithPanels.get(currentNumber).scrollPane());
 
         this.pack();
         this.setLayout(new GridLayout(1, 1, 10, 10));
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setTitle("CHECK YOUR KNOWLEDGE");
         this.setVisible(true);
     }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        if (e.getSource() == doneButton) {
+            actionIfDoneButtonIsClicked();
+
+            boolean isCorrectAnswer = listWithPanels.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct();
+            if (isCorrectAnswer) {
+
+                actionUfAnswerIsCorrect();
+
+            } else {
+                actionUfAnswerIsWrong();
+            }
+            currentNumber++;
+            if (currentNumber == MAX_NUMBER_OF_QUESTION) {
+                nextButton.setText("SEE RESULT");
+            }
+            this.pack();
+        }
+        if (e.getSource() == nextButton) {
+            if (currentNumber >= MAX_NUMBER_OF_QUESTION) {
+                actionForEndOfGame();
+            } else {
+                actionForNextQuestion();
+            }
+        }
+    }
+
+    private void actionForNextQuestion() {
+        isRightAnswer.setVisible(false);
+        nextButton.setVisible(false);
+        doneButton.setVisible(true);
+
+        addNewElementsOfQuestionToEL();
+
+        this.remove(listWithPanels.get(currentNumber - 1).scrollPane());
+        this.add(listWithPanels.get(currentNumber).scrollPane());
+        this.pack();
+    }
+
+    private void actionForEndOfGame() {
+        nextButton.setVisible(false);
+        new ResultWindow.Builder()
+                .withAdvancement(advancement)
+                .withConnect(connect)
+                .withScore(score)
+                .withQuantityQuestions(MAX_NUMBER_OF_QUESTION)
+                .withListOfCategory(chosenCategory)
+                .withListOfPanels(listWithPanels)
+                .build();
+        dispose();
+    }
+
+    private void actionIfDoneButtonIsClicked() {
+        doneButton.setVisible(false);
+        doneButton.setEnabled(false);
+        isRightAnswer.setVisible(true);
+        nextButton.setVisible(true);
+        listWithPanels.get(currentNumber).explanationPanel().setVisible(true);
+
+        String progress = String.format("DONE: %d from %d", currentNumber+1, MAX_NUMBER_OF_QUESTION);
+        progressBar.setString(progress);
+        progressBar.setValue(currentNumber+1);
+    }
+
+    private void actionUfAnswerIsWrong() {
+        isRightAnswer.setText("WRONG");
+        isRightAnswer.setForeground(Color.RED);
+
+        listWithPanels.get(currentNumber).answerRadioButtons().get(chosenAnswer).setForeground(Color.RED);
+
+        for (Answer answer : listWithPanels.get(currentNumber).listAnswersForTheQuestion()) {
+            if (answer.correct()) {
+                //set explanation for correct answer
+                listWithPanels.get(currentNumber).rightExplanation()
+                        .setText(HTMLConverter.changeTextToHTML(answer.explanation(), MAX_LENGTH));
+                //set foreground for correct answer
+                listWithPanels.get(currentNumber).answerRadioButtons()
+                        .get(listWithPanels.get(currentNumber).listAnswersForTheQuestion().indexOf(answer))
+                        .setForeground(DARK_GREEN);
+            }
+        }
+        //set foreground for chosen answer
+        listWithPanels.get(currentNumber).answerRadioButtons()
+                .get(chosenAnswer)
+                .setForeground(Color.RED);
+        listWithPanels.get(currentNumber).chosenExplanation().setVisible(true);
+        listWithPanels.get(currentNumber)
+                .chosenExplanation()
+                .setText(HTMLConverter.changeTextToHTML
+                        (listWithPanels.get(currentNumber)
+                                        .listAnswersForTheQuestion()
+                                        .get(chosenAnswer)
+                                        .explanation(),
+                                MAX_LENGTH));
+
+
+        for (int i = 0; i < listWithPanels.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
+            listWithPanels.get(currentNumber)
+                    .answerRadioButtons().get(i)
+                    .setToolTipText(listWithPanels
+                            .get(currentNumber)
+                            .listAnswersForTheQuestion()
+                            .get(i)
+                            .explanation());
+        }
+    }
+
+    private void actionUfAnswerIsCorrect() {
+        score++;
+        isRightAnswer.setText("RIGHT");
+        isRightAnswer.setForeground(DARK_GREEN);
+
+
+        listWithPanels.get(currentNumber)
+                .rightExplanation()
+                .setText(HTMLConverter.changeTextToHTML(listWithPanels
+                                .get(currentNumber)
+                                .listAnswersForTheQuestion()
+                                .get(chosenAnswer)
+                                .explanation()
+                        , MAX_LENGTH));
+
+        for (int i = 0; i < listWithPanels.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
+            listWithPanels.get(currentNumber)
+                    .answerRadioButtons()
+                    .get(i)
+                    .setToolTipText(listWithPanels.get(currentNumber)
+                            .listAnswersForTheQuestion()
+                            .get(i)
+                            .explanation());
+        }
+        listWithPanels.get(currentNumber).answerRadioButtons()
+                .get(chosenAnswer)
+                .setForeground(DARK_GREEN);
+    }
+
 
     private void setProgressBar() {
         progressBar = new JProgressBar(0, MAX_NUMBER_OF_QUESTION);
@@ -83,12 +218,9 @@ public class GameWindow extends JFrame implements ActionListener {
             answerRadioButtons
                     .add(new JRadioButton(HTMLConverter.changeTextToHTML(listAnswersForTheQuestion.get(i).text(), ANSWER_LENGTH)));
             int finalI = i;
-            answerRadioButtons.get(i).addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    chosenAnswer = finalI;
-                    doneButton.setEnabled(true);
-                }
+            answerRadioButtons.get(i).addActionListener(e -> {
+                chosenAnswer = finalI;
+                doneButton.setEnabled(true);
             });
             answersGroupButton.add(answerRadioButtons.get(i));
             c.gridx = 0;
@@ -133,12 +265,6 @@ public class GameWindow extends JFrame implements ActionListener {
 
         JPanel questionPanel = new JPanel(new GridBagLayout());
 
-        separator1 = new JSeparator();
-        separator1.setVisible(true);
-
-        separator2 = new JSeparator();
-        separator2.setVisible(true);
-
         c.insets = new Insets(10, 5, 10, 5);
         c.fill = GridBagConstraints.BOTH;
 
@@ -182,7 +308,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(questionPanel);
 
-        el.add(new GraficalElementsOfQuestion(question,
+        listWithPanels.add(new GraphicalElementsOfQuestion(question,
                 explanationPanel,
                 answersPanel,
                 codePanel,
@@ -233,131 +359,39 @@ public class GameWindow extends JFrame implements ActionListener {
         }
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-
-        if (e.getSource() == doneButton) {
-            doneButton.setVisible(false);
-            doneButton.setEnabled(false);
-            isRightAnswer.setVisible(true);
-            nextButton.setVisible(true);
-            el.get(currentNumber).explanationPanel().setVisible(true);
-
-            String progress = String.format("DONE: %d from %d", currentNumber+1, MAX_NUMBER_OF_QUESTION);
-            progressBar.setString(progress);
-            progressBar.setValue(currentNumber+1);
-
-            boolean isCorrectAnswer = el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct();
-            if (isCorrectAnswer) {
-
-                score++;
-                isRightAnswer.setText("RIGHT");
-                isRightAnswer.setForeground(DARK_GREEN);
 
 
-                el.get(currentNumber)
-                        .rightExplanation()
-                        .setText(HTMLConverter.changeTextToHTML(el
-                                .get(currentNumber)
-                                .listAnswersForTheQuestion()
-                                .get(chosenAnswer)
-                                .explanation()
-                                    , MAX_LENGTH));
-                separator1.setVisible(true);
-
-                for (int i = 0; i < el.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
-                    el.get(currentNumber)
-                            .answerRadioButtons()
-                            .get(i)
-                            .setToolTipText(el.get(currentNumber)
-                                    .listAnswersForTheQuestion()
-                                    .get(i)
-                                    .explanation());
-                }
-                el.get(currentNumber).answerRadioButtons()
-                        .get(chosenAnswer)
-                        .setForeground(DARK_GREEN);
-
-                currentNumber++;
-                if (currentNumber == MAX_NUMBER_OF_QUESTION) {
-                    nextButton.setText("SEE RESULT");
-                }
-                this.pack();
-            } else {
-                isRightAnswer.setText("WRONG");
-                isRightAnswer.setForeground(Color.RED);
-
-                el.get(currentNumber).answerRadioButtons().get(chosenAnswer).setForeground(Color.RED);
-                separator1.setVisible(true);
-
-                for (Answer answer : el.get(currentNumber).listAnswersForTheQuestion()) {
-                    if (answer.correct()) {
-                        //set explanation for correct answer
-                        el.get(currentNumber).rightExplanation()
-                                .setText(HTMLConverter.changeTextToHTML(answer.explanation(), MAX_LENGTH));
-                        //set foreground for correct answer
-                        el.get(currentNumber).answerRadioButtons()
-                                .get(el.get(currentNumber).listAnswersForTheQuestion().indexOf(answer))
-                                .setForeground(DARK_GREEN);
-                    }
-                }
-                //set foreground for chosen answer
-                el.get(currentNumber).answerRadioButtons()
-                        .get(chosenAnswer)
-                        .setForeground(Color.RED);
-                el.get(currentNumber).chosenExplanation().setVisible(true);
-                el.get(currentNumber)
-                        .chosenExplanation()
-                        .setText(HTMLConverter.changeTextToHTML
-                                (el.get(currentNumber)
-                                                .listAnswersForTheQuestion()
-                                                .get(chosenAnswer)
-                                                .explanation(),
-                                        MAX_LENGTH));
 
 
-                for (int i = 0; i < el.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
-                    el.get(currentNumber)
-                            .answerRadioButtons().get(i)
-                            .setToolTipText(el
-                                    .get(currentNumber)
-                                    .listAnswersForTheQuestion()
-                                    .get(i)
-                                    .explanation());
-                }
+    public static class Builder {
+        private JSONConnector connect;
+        private int quantityQuestions;
+        private Advancement advancement;
+        private String[] chosenCategory;
+        private List<Question> listOfQuestions;
 
-                currentNumber++;
-
-                if (currentNumber == MAX_NUMBER_OF_QUESTION) {
-                    nextButton.setText("SEE RESULT");
-                }
-                this.pack();
-            }
+        public Builder withConnect (JSONConnector connect){
+            this.connect = connect;
+            return this;
         }
-        if (e.getSource() == nextButton) {
-            if (currentNumber >= MAX_NUMBER_OF_QUESTION) {
-                nextButton.setVisible(false);
-                new ResultWindow.Builder()
-                        .withAdvancement(advancement)
-                        .withConnect(connect)
-                        .withScore(score)
-                        .withQuantityQuestions(MAX_NUMBER_OF_QUESTION)
-                        .withListOfCategory(chosenCategory)
-                        .withListOfPanels(el)
-                        .build();
-
-                dispose();
-            } else {
-                isRightAnswer.setVisible(false);
-                nextButton.setVisible(false);
-                doneButton.setVisible(true);
-
-                addNewElementsOfQuestionToEL();
-
-                this.remove(el.get(currentNumber - 1).scrollPane());
-                this.add(el.get(currentNumber).scrollPane());
-                this.pack();
-            }
+        public Builder withQuantityQuestions (int quantityQuestions){
+            this.quantityQuestions = quantityQuestions;
+            return this;
+        }
+        public Builder withChosenCategory (String[] chosenCategory){
+            this.chosenCategory = chosenCategory;
+            return this;
+        }
+        public Builder withAdvancement (Advancement advancement){
+            this.advancement = advancement;
+            return this;
+        }
+        public Builder withListOfQuestions (List<Question> listOfQuestions){
+            this.listOfQuestions = listOfQuestions;
+            return this;
+        }
+        public GameWindow build() {
+            return new GameWindow(chosenCategory, advancement, quantityQuestions, connect, listOfQuestions);
         }
     }
 }

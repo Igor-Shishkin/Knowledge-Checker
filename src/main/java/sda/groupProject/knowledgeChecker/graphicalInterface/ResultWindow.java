@@ -15,7 +15,7 @@ public class ResultWindow extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
     private final Color DARK_GREEN = new Color(0x066C00);
     private final JSONConnector connect;
-    private final List<GraficalElementsOfQuestion> listOfPanels;
+    private final List<GraphicalElementsOfQuestion> listOfPanels;
     private final int score;
     private final int quantityQuestions;
     private int currentNumber;
@@ -37,7 +37,7 @@ public class ResultWindow extends JFrame implements ActionListener {
 
 
     private ResultWindow(JSONConnector connect, int score, int quantityQuestions, Advancement advancement,
-                        String[] listOfCategory, List<GraficalElementsOfQuestion> listOfPanels) {
+                        String[] listOfCategory, List<GraphicalElementsOfQuestion> listOfPanels) {
         this.connect = connect;
         this.score = score;
         this.quantityQuestions = quantityQuestions;
@@ -231,7 +231,7 @@ public class ResultWindow extends JFrame implements ActionListener {
         private int quantityQuestions;
         private Advancement advancement;
         private String[] listOfCategory;
-        private List<GraficalElementsOfQuestion> listOfPanels;
+        private List<GraphicalElementsOfQuestion> listOfPanels;
 
         public Builder withConnect (JSONConnector connect){
             this.connect = connect;
@@ -253,7 +253,7 @@ public class ResultWindow extends JFrame implements ActionListener {
             this.listOfCategory = listOfCategory;
             return this;
         }
-        public Builder withListOfPanels (List<GraficalElementsOfQuestion> listOfPanels){
+        public Builder withListOfPanels (List<GraphicalElementsOfQuestion> listOfPanels){
             this.listOfPanels = listOfPanels;
             return this;
         }

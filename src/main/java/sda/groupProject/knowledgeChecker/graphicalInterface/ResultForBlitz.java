@@ -10,11 +10,11 @@ import java.util.List;
 
 public class ResultForBlitz extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
-    private final Color DARK_GREEN = new Color(0x066C00);
-    private int QUONTYTI_OF_QUESTIONS;
-    private final JSONConnector connect;
+    private final Color DARK_GREEN = new Color(0x0ABE00);
+    private final int quantityOfQuestion;
+    private final transient JSONConnector connect;
     private JLabel resultLabel;
-    private final List<GraficalElementsOfQuestion> el;
+    private final List<GraphicalElementsOfQuestion> listOfPanels;
     private final double score;
     private final double maxScore;
     private int currentNumber;
@@ -29,17 +29,18 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     private GridBagConstraints c;
     private final String seeAnswers = "SEE MY ANSWERS";
     private JProgressBar progressBar;
+    private final String textForProgressBar = "question %d out of %d";
 
 
-    public ResultForBlitz(JSONConnector connect, List<GraficalElementsOfQuestion> el, double score, int currentNumber,
+    public ResultForBlitz(JSONConnector connect, List<GraphicalElementsOfQuestion> el, double score, int currentNumber,
                           double maxScore) {
         this.connect = connect;
-        this.el = el;
+        this.listOfPanels = el;
         this.score = score;
         this.currentNumber = currentNumber;
         this.maxScore = maxScore;
 
-        QUONTYTI_OF_QUESTIONS = currentNumber + 1;
+        quantityOfQuestion = currentNumber + 1;
 
         setResultPanel();
         setProgressBar();
@@ -58,6 +59,64 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         this.setVisible(true);
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource()==trainButton) {
+            new GreetingWindow(connect);
+            dispose();
+        }
+        if (e.getSource()==exitButton) {
+            System.exit(1);
+        }
+        if (e.getSource() == seeTestButton) {
+
+            if (seeTestButton.getText().equals(seeAnswers)) {
+
+                reviewPanel.setVisible(true);
+                resultLabel.setVisible(false);
+
+                if (currentNumber == listOfPanels.size()) {
+                    currentNumber--;
+                }
+                forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
+                showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+                this.pack();
+
+                seeTestButton.setText("SEE MY RESULT");
+            }  else {
+                reviewPanel.setVisible(false);
+                resultLabel.setVisible(true);
+
+                showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+                seeTestButton.setText(seeAnswers);
+
+                this.pack();
+            }
+        }
+        if (e.getSource() == backButton) {
+            showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+            currentNumber--;
+            showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+            backButton.setEnabled(currentNumber>0);
+            forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
+            progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
+            progressBar.setValue(currentNumber+1);
+            this.pack();
+        }
+        if (e.getSource() == forwardButton) {
+            showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+            currentNumber++;
+            showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+            backButton.setEnabled(currentNumber>0);
+            forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
+            progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
+            progressBar.setValue(currentNumber+1);
+            this.pack();
+        }
+
+    }
+
+
     private void setProgressBar() {
         progressBar = new JProgressBar(0, currentNumber);
         progressBar.setValue(currentNumber+1);
@@ -65,7 +124,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
         progressBar.setForeground(Color.red);
         progressBar.setBackground(Color.black);
-        progressBar.setString(String.format("question %d out of %d", currentNumber+1, QUONTYTI_OF_QUESTIONS));
+        progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
     }
 
     private void setReviewPanel() {
@@ -161,64 +220,6 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         c.gridwidth = 2;
         resultPanel.add(buttonsPanel, c);
 
-
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource()==trainButton) {
-            new GreetingWindow(connect);
-            dispose();
-        }
-        if (e.getSource()==exitButton) {
-            System.exit(1);
-        }
-        if (e.getSource() == seeTestButton) {
-
-            if (seeTestButton.getText().equals(seeAnswers)) {
-
-                reviewPanel.setVisible(true);
-                resultLabel.setVisible(false);
-
-                if (currentNumber == el.size()) {
-                    currentNumber--;
-                }
-                forwardButton.setEnabled(currentNumber<el.size()-1);
-                showQuestionPanel.add(el.get(currentNumber).questionPanel());
-                this.pack();
-
-                String seeResult = "SEE MY RESULT";
-                seeTestButton.setText(seeResult);
-            }  else {
-                reviewPanel.setVisible(false);
-                resultLabel.setVisible(true);
-
-                showQuestionPanel.remove(el.get(currentNumber).questionPanel());
-                seeTestButton.setText(seeAnswers);
-
-                this.pack();
-            }
-        }
-        if (e.getSource() == backButton) {
-            showQuestionPanel.remove(el.get(currentNumber).questionPanel());
-            currentNumber--;
-            showQuestionPanel.add(el.get(currentNumber).questionPanel());
-            backButton.setEnabled(currentNumber>0);
-            forwardButton.setEnabled(currentNumber<el.size()-1);
-            progressBar.setString(String.format("question %d out of %d", currentNumber+1, QUONTYTI_OF_QUESTIONS));
-            progressBar.setValue(currentNumber+1);
-            this.pack();
-        }
-        if (e.getSource() == forwardButton) {
-            showQuestionPanel.remove(el.get(currentNumber).questionPanel());
-            currentNumber++;
-            showQuestionPanel.add(el.get(currentNumber).questionPanel());
-            backButton.setEnabled(currentNumber>0);
-            forwardButton.setEnabled(currentNumber<el.size()-1);
-            progressBar.setString(String.format("question %d out of %d", currentNumber+1, QUONTYTI_OF_QUESTIONS));
-            progressBar.setValue(currentNumber+1);
-            this.pack();
-        }
 
     }
 }
