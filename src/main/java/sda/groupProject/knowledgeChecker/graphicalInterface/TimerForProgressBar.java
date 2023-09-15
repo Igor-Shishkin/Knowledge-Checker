@@ -10,13 +10,13 @@ import java.util.TimerTask;
 public class TimerForProgressBar extends TimerTask {
     JProgressBar progressBar;
     JSONConnector connect;
-    List<GraficalElementsOfQuestion> el;
+    List<GraphicalElementsOfQuestion> el;
     double score, maxScore;
     int currentNumber;
     JButton nextButton;
 
 
-    public TimerForProgressBar(JProgressBar progressBar, List<GraficalElementsOfQuestion> el, JButton nextButton,
+    public TimerForProgressBar(JProgressBar progressBar, List<GraphicalElementsOfQuestion> el, JButton nextButton,
                                int currentNumber) {
         this.progressBar = progressBar;
         this.el = el;

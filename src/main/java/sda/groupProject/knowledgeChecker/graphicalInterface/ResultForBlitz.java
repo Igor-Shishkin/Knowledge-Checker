@@ -10,33 +10,41 @@ import java.awt.event.ActionListener;
 import java.util.List;
 
 public class ResultForBlitz extends JFrame implements ActionListener {
-    Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
-    Color DARK_GREEN = new Color(0x066C00);
-    Color DARK_BLUE = new Color(0x001A60);
-    JSONConnector connect;
-    JLabel resultLabel;
-    List<GraficalElementsOfQuestion> el;
-    double score, maxScore;
-    int currentNumber;
-    JPanel resultPanel, showQuestionPanel, reviewPanel;
-    String[] listOfCategory;
-    Advancement advancement;
-    JButton exitButton, trainButton, seeTestButton, forwardButton, backButton;
-    GridBagConstraints c;
-    String seeAnswers = "SEE MY ANSWERS";
-    String seeResult = "SEE MY RESULT";
+    private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    private final Color DARK_GREEN = new Color(0x0ABE00);
+    private final int quantityOfQuestion;
+    private final transient JSONConnector connect;
+    private JLabel resultLabel;
+    private final transient List<GraphicalElementsOfQuestion> listOfPanels;
+    private final double score;
+    private final double maxScore;
+    private int currentNumber;
+    private JPanel resultPanel;
+    private JPanel showQuestionPanel;
+    private JPanel reviewPanel;
+    private JButton exitButton;
+    private JButton trainButton;
+    private JButton seeTestButton;
+    private JButton forwardButton;
+    private JButton backButton;
+    private GridBagConstraints c;
+    private final String seeAnswers = "SEE MY ANSWERS";
+    private JProgressBar progressBar;
+    private final String textForProgressBar = "question %d out of %d";
 
-    boolean isTimeOver = false;
 
-    public ResultForBlitz(JSONConnector connect, List<GraficalElementsOfQuestion> el, double score, int currentNumber,
+    private ResultForBlitz(JSONConnector connect, List<GraphicalElementsOfQuestion> el, double score, int currentNumber,
                           double maxScore) {
         this.connect = connect;
-        this.el = el;
+        this.listOfPanels = el;
         this.score = score;
         this.currentNumber = currentNumber;
         this.maxScore = maxScore;
 
+        quantityOfQuestion = currentNumber + 1;
+
         setResultPanel();
+        setProgressBar();
         setReviewPanel();
 
 
@@ -46,10 +54,93 @@ public class ResultForBlitz extends JFrame implements ActionListener {
 
 
         this.pack();
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setTitle("RESULT OF TEST");
         this.setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource()==trainButton) {
+            new GreetingWindow(connect);
+            dispose();
+        }
+        if (e.getSource()==exitButton) {
+            System.exit(1);
+        }
+        if (e.getSource() == seeTestButton) {
+
+            if (seeTestButton.getText().equals(seeAnswers)) {
+                actionIfSeeAnswersButtonIsClicked();
+            }  else {
+                actionIfSeeResultButtonIsClicked();
+            }
+        }
+        if (e.getSource() == backButton) {
+            actionIsBackButtonIsClicked();
+        }
+        if (e.getSource() == forwardButton) {
+            actionIfForwardButtonIsClicked();
+        }
+
+    }
+
+    private void actionIfForwardButtonIsClicked() {
+        showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+        currentNumber++;
+        showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+        backButton.setEnabled(currentNumber>0);
+        forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
+        progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
+        progressBar.setValue(currentNumber+1);
+        this.pack();
+    }
+
+    private void actionIsBackButtonIsClicked() {
+        showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+        currentNumber--;
+        showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+        backButton.setEnabled(currentNumber>0);
+        forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
+        progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
+        progressBar.setValue(currentNumber+1);
+        this.pack();
+    }
+
+    private void actionIfSeeResultButtonIsClicked() {
+        reviewPanel.setVisible(false);
+        resultLabel.setVisible(true);
+
+        showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+        seeTestButton.setText(seeAnswers);
+
+        this.pack();
+    }
+
+    private void actionIfSeeAnswersButtonIsClicked() {
+        reviewPanel.setVisible(true);
+        resultLabel.setVisible(false);
+
+        seeTestButton.setText("SEE MY RESULT");
+
+        if (currentNumber == listOfPanels.size()) {
+            currentNumber--;
+        }
+        forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
+        showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+        this.pack();
+    }
+
+
+    private void setProgressBar() {
+        progressBar = new JProgressBar(0, currentNumber);
+        progressBar.setValue(currentNumber+1);
+        progressBar.setStringPainted(true);
+        progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
+        progressBar.setForeground(Color.red);
+        progressBar.setBackground(Color.black);
+        progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
     }
 
     private void setReviewPanel() {
@@ -80,9 +171,15 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         reviewPanel.setVisible(false);
 
         c.gridx = 0;
+        c.gridy = 2;
+        c.gridwidth = 2;
+        reviewPanel.add(progressBar, c);
+
+        c.gridx = 0;
         c.gridy = 3;
         c.gridwidth = 2;
         resultPanel.add(reviewPanel, c);
+
     }
 
     private void setResultPanel() {
@@ -101,7 +198,10 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         seeTestButton.setBorder(BorderFactory.createLineBorder(Color.blue, 3));
         seeTestButton.setForeground(Color.blue);
 
-
+        JPanel buttonsPanel = new JPanel(new GridLayout(1,3,5,5));
+        buttonsPanel.add(trainButton);
+        buttonsPanel.add(exitButton);
+        buttonsPanel.add(seeTestButton);
 
 
         String resultText;
@@ -117,10 +217,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         resultLabel = new JLabel(resultText);
         resultLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 30));
 
-        JPanel buttonsPanel = new JPanel(new GridLayout(1,3,5,5));
-        buttonsPanel.add(trainButton);
-        buttonsPanel.add(exitButton);
-        buttonsPanel.add(seeTestButton);
+
 
         resultPanel = new JPanel(new GridBagLayout());
         c = new GridBagConstraints();
@@ -138,59 +235,42 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         c.gridy = 1;
         c.gridwidth = 2;
         resultPanel.add(buttonsPanel, c);
-
-
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource()==trainButton) {
-            new GreetingWindow(connect);
-            dispose();
+    public static class Builder {
+        private JSONConnector connect;
+        private double score;
+        private int currentNumber;
+        private double maxScore;
+        private String[] listOfCategory;
+        private List<GraphicalElementsOfQuestion> listOfPanels;
+
+        public Builder withConnect (JSONConnector connect){
+            this.connect = connect;
+            return this;
         }
-        if (e.getSource()==exitButton) {
-            System.exit(1);
+        public Builder withScore (int score){
+            this.score = score;
+            return this;
         }
-        if (e.getSource() == seeTestButton) {
-
-            if (seeTestButton.getText().equals(seeAnswers)) {
-
-                reviewPanel.setVisible(true);
-                resultLabel.setVisible(false);
-
-                if (currentNumber == el.size()) {
-                    currentNumber--;
-                }
-                forwardButton.setEnabled(currentNumber<el.size()-1);
-                showQuestionPanel.add(el.get(currentNumber).questionPanel());
-                this.pack();
-
-                seeTestButton.setText(seeResult);
-            }  else {
-                reviewPanel.setVisible(false);
-                resultLabel.setVisible(true);
-
-                showQuestionPanel.remove(el.get(currentNumber).questionPanel());
-                seeTestButton.setText(seeAnswers);
-
-                this.pack();
-            }
+        public Builder withCurrentNumber (int currentNumber){
+            this.currentNumber = currentNumber;
+            return this;
         }
-        if (e.getSource() == backButton) {
-            showQuestionPanel.remove(el.get(currentNumber).questionPanel());
-            currentNumber--;
-            showQuestionPanel.add(el.get(currentNumber).questionPanel());
-            backButton.setEnabled(currentNumber>0);
-            forwardButton.setEnabled(currentNumber<el.size()-1);
-            this.pack();
+        public Builder withScore (double score){
+            this.score = score;
+            return this;
         }
-        if (e.getSource() == forwardButton) {
-            showQuestionPanel.remove(el.get(currentNumber).questionPanel());
-            currentNumber++;
-            showQuestionPanel.add(el.get(currentNumber).questionPanel());
-            backButton.setEnabled(currentNumber>0);
-            forwardButton.setEnabled(currentNumber<el.size()-1);
-            this.pack();
+        public Builder withMaxScore (double maxScore){
+            this.maxScore = maxScore;
+            return this;
+        }
+        public Builder withListOfPanels (List<GraphicalElementsOfQuestion> listOfPanels){
+            this.listOfPanels = listOfPanels;
+            return this;
+        }
+        public ResultForBlitz build() {
+            return new ResultForBlitz(connect, listOfPanels, score, currentNumber, maxScore);
         }
 
     }
