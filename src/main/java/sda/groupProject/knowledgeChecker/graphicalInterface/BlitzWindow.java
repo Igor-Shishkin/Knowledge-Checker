@@ -1,6 +1,5 @@
 package sda.groupProject.knowledgeChecker.graphicalInterface;
 
-import sda.groupProject.knowledgeChecker.Main;
 import sda.groupProject.knowledgeChecker.data.*;
 
 import javax.swing.*;
@@ -12,26 +11,22 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static java.lang.System.*;
-
 public class BlitzWindow extends JFrame implements ActionListener {
-    private Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
-    private Color DARK_GREEN = new Color(0x0CB402);
-    private int TIME_FOR_TEST = 20;
-    private int MAX_LENGTH = 60;
-    private int ANSWER_LENGTH = 50;
+    private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
+    private final Color MY_GREEN = new Color(0x0BDC00);
+    private final int TIME_FOR_TEST_SECONDS = 20;
+    private final int MAX_LENGTH = 60;
+    private final int ANSWER_LENGTH = 50;
 
     private JPanel buttonsPanel;
     private JSeparator separator1;
-    private JSeparator separator2;
     private JButton nextButton;
-    private JLabel isRightAnswer;
     private double score;
     private double maxScore;
     private int currentNumber = 0;
     private int chosenAnswer;
-    private final JSONConnector connect;
-    private final List<Question> listOfQuestions;
+    private final transient JSONConnector connect;
+    private final transient List<Question> listOfQuestions;
     private final GridBagConstraints c = new GridBagConstraints();
     private JProgressBar progressBar;
 
@@ -56,20 +51,193 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         this.pack();
         this.setLayout(new GridLayout(1, 1, 10, 10));
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setTitle("CHECK YOUR KNOWLEDGE");
         this.setVisible(true);
     }
 
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+
+        if (e.getSource() == nextButton) {
+
+            if (nextButton.getText().equals("<html>TIME IS<br>OVER</html>")) {
+                el.get(currentNumber).questionPanel().remove(progressBar);
+                new ResultForBlitz(connect, el, score, currentNumber, maxScore);
+                nextButton.setVisible(false);
+                dispose();
+
+            } else {
+
+                nextButton.setEnabled(false);
+
+                double maxPoints = getPointForCorrectAnswer();
+                maxScore = maxScore + maxPoints;
+
+                if (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
+                    actionIfAnswerIsCorrect();
+                } else {
+                    actionsIfAnswerIsNotCorrect();
+                }
+
+                el.get(currentNumber - 1).questionPanel().remove(buttonsPanel);
+                el.get(currentNumber - 1).questionPanel().remove(progressBar);
+
+                addNewElementsOfQuestion();
+
+                this.remove(el.get(currentNumber - 1).scrollPane());
+                this.add(el.get(currentNumber).scrollPane());
+                this.pack();
+            }
+
+        }
+    }
+
+    private void actionsIfAnswerIsNotCorrect() {
+        double points = getPointForWrongAnswer();
+
+        JLabel scoreLabelForTheQuestion = new JLabel(Double.toString(points));
+        JLabel levelLabel = new JLabel(el.get(currentNumber).question().advancement().toString());
+        JLabel categoryLabel = new JLabel(el.get(currentNumber).question().category().categoryName());
+        scoreLabelForTheQuestion.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+        levelLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+        categoryLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+        scoreLabelForTheQuestion.setForeground(Color.RED);
+
+        scoreLabelForTheQuestion.setHorizontalAlignment(SwingConstants.RIGHT);
+        levelLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        categoryLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        c.gridx = 9;
+        c.gridy = 2;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        el.get(currentNumber).questionPanel().add(scoreLabelForTheQuestion, c);
+
+        c.gridy = 3;
+        el.get(currentNumber).questionPanel().add(levelLabel, c);
+
+        c.gridy = 4;
+        el.get(currentNumber).questionPanel().add(categoryLabel, c);
+
+        score += points;
+
+        el.get(currentNumber).answerRadioButtons().get(chosenAnswer).setForeground(Color.RED);
+        separator1.setVisible(true);
+
+        for (Answer answer : el.get(currentNumber).listAnswersForTheQuestion()) {
+            if (answer.correct()) {
+                el.get(currentNumber).rightExplanation()
+                        .setText(HTMLConverter.changeTextToHTML(answer.explanation(), MAX_LENGTH));
+                el.get(currentNumber).answerRadioButtons()
+                        .get(el.get(currentNumber).listAnswersForTheQuestion().indexOf(answer))
+                        .setForeground(MY_GREEN);
+            }
+        }
+        el.get(currentNumber).answerRadioButtons()
+                .get(chosenAnswer)
+                .setForeground(Color.RED);
+        el.get(currentNumber).chosenExplanation().setVisible(true);
+        el.get(currentNumber).chosenExplanation().setText(HTMLConverter.changeTextToHTML
+                (el.get(currentNumber).listAnswersForTheQuestion()
+                        .get(chosenAnswer).explanation(), MAX_LENGTH));
+        el.get(currentNumber).explanationPanel().setVisible(true);
+
+        for (int i = 0; i < el.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
+            el.get(currentNumber).answerRadioButtons().get(i)
+                    .setToolTipText(el.get(currentNumber).listAnswersForTheQuestion().get(i).explanation());
+        }
+        el.get(currentNumber).questionPanel().repaint();
+        el.get(currentNumber).scrollPane().repaint();
+        currentNumber++;
+    }
+
+    private void actionIfAnswerIsCorrect() {
+        double points = getPointForCorrectAnswer();
+
+        addExplanationComponentsToQuestionPanel(points);
+
+
+
+        score += points;
+
+        el.get(currentNumber).rightExplanation().setText(HTMLConverter.changeTextToHTML
+                (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).explanation(), MAX_LENGTH));
+        el.get(currentNumber).explanationPanel().setVisible(true);
+        separator1.setVisible(true);
+
+        for (int i = 0; i < el.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
+            el.get(currentNumber).answerRadioButtons().get(i)
+                    .setToolTipText(el.get(currentNumber).listAnswersForTheQuestion().get(i).explanation());
+        }
+        el.get(currentNumber).answerRadioButtons()
+                .get(chosenAnswer)
+                .setForeground(MY_GREEN);
+        el.get(currentNumber).questionPanel().repaint();
+        el.get(currentNumber).scrollPane().repaint();
+
+        currentNumber++;
+    }
+
+    private void addExplanationComponentsToQuestionPanel(double points) {
+        JLabel scoreLabelForTheQuestion = new JLabel(Double.toString(points));
+        JLabel levelLabel = new JLabel(el.get(currentNumber).question().advancement().toString());
+        JLabel categoryLabel = new JLabel(el.get(currentNumber).question().category().categoryName());
+
+        scoreLabelForTheQuestion.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+        levelLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+        categoryLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
+
+        scoreLabelForTheQuestion.setHorizontalAlignment(SwingConstants.RIGHT);
+        levelLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+        categoryLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+
+        scoreLabelForTheQuestion.setForeground(MY_GREEN);
+
+        c.gridx = 9;
+        c.gridy = 2;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        el.get(currentNumber).questionPanel().add(scoreLabelForTheQuestion, c);
+
+        c.gridy = 3;
+        el.get(currentNumber).questionPanel().add(levelLabel, c);
+
+        c.gridy = 4;
+        el.get(currentNumber).questionPanel().add(categoryLabel, c);
+    }
+
+    private double getPointForCorrectAnswer() {
+        if (el.get(currentNumber).question().advancement() == Advancement.BASIC) {
+            return 1;
+        }
+        if (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) {
+            return 2;
+        }
+        return 3;
+    }
+
+    private double getPointForWrongAnswer() {
+        if (el.get(currentNumber).question().advancement() == Advancement.BASIC) {
+            return -0.5;
+        }
+        if (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) {
+            return -1;
+        }
+        return -1.5;
+    }
+
     private void setProgressBar() {
-        progressBar = new JProgressBar(0, TIME_FOR_TEST);
-        progressBar.setValue(TIME_FOR_TEST);
+        progressBar = new JProgressBar(0, TIME_FOR_TEST_SECONDS);
+        progressBar.setValue(TIME_FOR_TEST_SECONDS);
         progressBar.setStringPainted(true);
         progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
         progressBar.setForeground(Color.red);
         progressBar.setBackground(Color.black);
-        progressBar.setString("DONE: 0 from " + listOfQuestions.size());
+        progressBar.setString("START");
     }
 
     private void addNewElementsOfQuestion() {
@@ -106,7 +274,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
         JLabel chosenExplanation = new JLabel();
         rightExplanation.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 20));
         chosenExplanation.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 20));
-        rightExplanation.setForeground(DARK_GREEN);
+        rightExplanation.setForeground(MY_GREEN);
         chosenExplanation.setForeground(Color.red);
 
         c.gridx = 0;
@@ -123,6 +291,8 @@ public class BlitzWindow extends JFrame implements ActionListener {
         JPanel codePanel = new JPanel(new GridLayout(1, 1, 5, 5));
         codePanel.setBorder(BorderFactory.createLoweredSoftBevelBorder());
         JLabel codeLabel = new JLabel(HTMLConverter.changeTextToHTML(question.code(), MAX_LENGTH));
+        codeLabel.setFont(new Font(null, Font.PLAIN, 20));
+        codeLabel.setFont(new Font(null, Font.PLAIN, 20));
         codePanel.add(codeLabel);
         codePanel.setVisible(question.code() != null);
 
@@ -136,9 +306,6 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         separator1 = new JSeparator();
         separator1.setVisible(false);
-
-        separator2 = new JSeparator();
-        separator2.setVisible(true);
 
         c.insets = new Insets(10, 5, 10, 5);
         c.fill = GridBagConstraints.BOTH;
@@ -166,30 +333,24 @@ public class BlitzWindow extends JFrame implements ActionListener {
         c.gridx = 9;
         c.gridy = 2;
         c.gridwidth = 1;
-        c.gridheight = listAnswersForTheQuestion.size() - 1;
+        c.gridheight = listAnswersForTheQuestion.size()-1;
         questionPanel.add(buttonsPanel, c);
 
         c.insets = new Insets(3, 5, 3, 5);
         c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size() + 1;
+        c.gridy = listAnswersForTheQuestion.size() + 3;
         c.gridheight = 1;
         c.gridwidth = 10;
         questionPanel.add(separator1, c);
 
         c.insets = new Insets(3, 5, 3, 5);
         c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size() + 2;
+        c.gridy = listAnswersForTheQuestion.size() + 4;
         c.gridwidth = 10;
         c.gridheight = 3;
         questionPanel.add(explanationPanel, c);
 
-        c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size() + 6;
-        c.gridwidth = 10;
-        c.gridheight = 1;
-        questionPanel.add(separator2, c);
-
-        c.gridy = listAnswersForTheQuestion.size() + 7;
+        c.gridy = listAnswersForTheQuestion.size() + 9;
         c.gridwidth = 10;
         c.gridheight = 1;
         questionPanel.add(progressBar, c);
@@ -219,190 +380,21 @@ public class BlitzWindow extends JFrame implements ActionListener {
         nextButton.addActionListener(this);
         nextButton.setEnabled(false);
 
-        isRightAnswer = new JLabel();
-        isRightAnswer.setVisible(false);
-        isRightAnswer.setFont(MAIN_FONT.deriveFont(Font.BOLD, 35));
-        isRightAnswer.setHorizontalAlignment(SwingConstants.CENTER);
-
-        buttonsPanel = new JPanel(new GridLayout(2, 1, 10, 10));
-        buttonsPanel.add(isRightAnswer);
+        buttonsPanel = new JPanel(new GridLayout(1, 1, 10, 10));
         buttonsPanel.add(nextButton);
     }
 
     private void setFontForComponents(Container container) {
         for (Component component : container.getComponents()) {
-//            if (component instanceof JLabel || component instanceof JComboBox<?>) {
-//                component.setFont(ConstantsForStyle.MAIN_FONT);
-//            }
             if (component instanceof JRadioButton) {
                 component.setFont(MAIN_FONT.deriveFont(Font.BOLD, 19));
             }
-            if (component instanceof Container) {
-                setFontForComponents((Container) component);
+            if (component instanceof Container innerContainer) {
+                setFontForComponents(innerContainer);
             }
         }
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-
-        String textForScoreLabel = "";
-        if (e.getSource() == nextButton) {
-            if (nextButton.getText().equals("<html>TIME IS<br>OVER</html>")) {
-                new ResultForBlitz(connect, el, score, currentNumber, maxScore);
-                nextButton.setEnabled(false);
-                dispose();
-
-            } else {
-
-                int maxPoints = (el.get(currentNumber).question().advancement() == Advancement.BASIC) ? 1
-                        : (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) ? 2
-                        : 3;
-                maxScore = maxScore + maxPoints;
-
-
-                el.get(currentNumber).questionPanel().remove(buttonsPanel);
-                el.get(currentNumber).questionPanel().remove(progressBar);
-                el.get(currentNumber).questionPanel().remove(separator2);
-                el.get(currentNumber).questionPanel().remove(separator1);
-
-
-
-
-                if (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
-
-                    int points = (el.get(currentNumber).question().advancement() == Advancement.BASIC) ? 1
-                            : (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) ? 2
-                            : 3;
-
-
-                    JLabel scoreLabel = new JLabel(Double.toString(points));
-                    JLabel levelLabel = new JLabel(el.get(currentNumber).question().advancement().toString());
-                    JLabel categoryLabel = new JLabel(el.get(currentNumber).question().category().categoryName());
-                    scoreLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
-                    levelLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
-                    categoryLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
-                    scoreLabel.setForeground(DARK_GREEN);
-
-                    c.gridx = 9;
-                    c.gridy = 2;
-                    c.gridwidth = 1;
-                    c.gridheight = 1;
-                    el.get(currentNumber).questionPanel().add(scoreLabel, c);
-
-                    c.gridy = 3;
-                    el.get(currentNumber).questionPanel().add(levelLabel, c);
-
-                    c.gridy = 4;
-                    el.get(currentNumber).questionPanel().add(categoryLabel, c);
-
-
-                    textForScoreLabel = score + " + " + points;
-                    isRightAnswer.setText(textForScoreLabel);
-                    isRightAnswer.setForeground(DARK_GREEN);
-                    isRightAnswer.setVisible(true);
-
-                    score += points;
-
-                    el.get(currentNumber).rightExplanation().setText(HTMLConverter.changeTextToHTML
-                            (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).explanation(), MAX_LENGTH));
-                    el.get(currentNumber).explanationPanel().setVisible(true);
-                    separator1.setVisible(true);
-
-                    for (int i = 0; i < el.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
-                        el.get(currentNumber).answerRadioButtons().get(i)
-                                .setToolTipText(el.get(currentNumber).listAnswersForTheQuestion().get(i).explanation());
-                    }
-                    el.get(currentNumber).answerRadioButtons()
-                            .get(chosenAnswer)
-                            .setForeground(DARK_GREEN);
-                    el.get(currentNumber).questionPanel().repaint();
-                    el.get(currentNumber).scrollPane().repaint();
-
-
-
-
-                    currentNumber++;
-
-
-                } else {
-
-                    double points = (el.get(currentNumber).question().advancement() == Advancement.BASIC) ? -0.5
-                            : (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) ? -1
-                            : -1.5;
-
-                    JLabel scoreLabel = new JLabel(Double.toString(points));
-                    JLabel levelLabel = new JLabel(el.get(currentNumber).question().advancement().toString());
-                    JLabel categoryLabel = new JLabel(el.get(currentNumber).question().category().categoryName());
-                    scoreLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
-                    levelLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
-                    categoryLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 25));
-                    scoreLabel.setForeground(Color.RED);
-
-                    c.gridx = 9;
-                    c.gridy = 2;
-                    c.gridwidth = 1;
-                    c.gridheight = 1;
-                    el.get(currentNumber).questionPanel().add(scoreLabel, c);
-
-                    c.gridy = 3;
-                    el.get(currentNumber).questionPanel().add(levelLabel, c);
-
-                    c.gridy = 4;
-                    el.get(currentNumber).questionPanel().add(categoryLabel, c);
-
-
-                    textForScoreLabel = score + " - " + Math.abs(points);
-                    isRightAnswer.setText(textForScoreLabel);
-                    isRightAnswer.setForeground(Color.RED);
-                    isRightAnswer.setVisible(true);
-
-                    score += points;
-
-                    el.get(currentNumber).answerRadioButtons().get(chosenAnswer).setForeground(Color.RED);
-                    separator1.setVisible(true);
-
-                    for (Answer answer : el.get(currentNumber).listAnswersForTheQuestion()) {
-                        if (answer.correct()) {
-                            el.get(currentNumber).rightExplanation()
-                                    .setText(HTMLConverter.changeTextToHTML(answer.explanation(), MAX_LENGTH));
-                            el.get(currentNumber).answerRadioButtons()
-                                    .get(el.get(currentNumber).listAnswersForTheQuestion().indexOf(answer))
-                                    .setForeground(DARK_GREEN);
-                        }
-                    }
-                    el.get(currentNumber).answerRadioButtons()
-                            .get(chosenAnswer)
-                            .setForeground(Color.RED);
-                    el.get(currentNumber).chosenExplanation().setVisible(true);
-                    el.get(currentNumber).chosenExplanation().setText(HTMLConverter.changeTextToHTML
-                            (el.get(currentNumber).listAnswersForTheQuestion()
-                                    .get(chosenAnswer).explanation(), MAX_LENGTH));
-                    el.get(currentNumber).explanationPanel().setVisible(true);
-
-                    for (int i = 0; i < el.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
-                        el.get(currentNumber).answerRadioButtons().get(i)
-                                .setToolTipText(el.get(currentNumber).listAnswersForTheQuestion().get(i).explanation());
-                    }
-                    el.get(currentNumber).questionPanel().repaint();
-                    el.get(currentNumber).scrollPane().repaint();
-                    currentNumber++;
-                }
-
-                el.get(currentNumber - 1).questionPanel().remove(buttonsPanel);
-                el.get(currentNumber - 1).questionPanel().remove(separator1);
-                el.get(currentNumber - 1).questionPanel().remove(separator2);
-                el.get(currentNumber - 1).questionPanel().remove(progressBar);
-
-                addNewElementsOfQuestion();
-
-                this.remove(el.get(currentNumber - 1).scrollPane());
-                this.add(el.get(currentNumber).scrollPane());
-                this.pack();
-            }
-
-        }
-    }
 }
 
 

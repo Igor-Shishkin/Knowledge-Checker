@@ -124,6 +124,7 @@ public class GameWindow extends JFrame implements ActionListener {
         codePanel.setBorder(BorderFactory.createLoweredSoftBevelBorder());
         JLabel codeLabel = new JLabel(HTMLConverter.changeTextToHTML(question.code(), MAX_LENGTH));
         codePanel.add(codeLabel);
+        codeLabel.setFont(new Font(null, Font.PLAIN, 20));
         codePanel.setVisible(question.code() != null);
 
         JLabel questionLabel = new JLabel(HTMLConverter.changeTextToHTML(question.text(), MAX_LENGTH));
@@ -133,7 +134,7 @@ public class GameWindow extends JFrame implements ActionListener {
         JPanel questionPanel = new JPanel(new GridBagLayout());
 
         separator1 = new JSeparator();
-        separator1.setVisible(false);
+        separator1.setVisible(true);
 
         separator2 = new JSeparator();
         separator2.setVisible(true);
@@ -164,28 +165,15 @@ public class GameWindow extends JFrame implements ActionListener {
         c.gridx = 9;
         c.gridy = 2;
         c.gridwidth = 1;
-        c.gridheight = listAnswersForTheQuestion.size() - 1;
+        c.gridheight = listAnswersForTheQuestion.size();
         questionPanel.add(buttonsPanel, c);
 
         c.insets = new Insets(3, 5, 3, 5);
         c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size() + 1;
-        c.gridheight = 1;
-        c.gridwidth = 10;
-        questionPanel.add(separator1, c);
-
-        c.insets = new Insets(3, 5, 3, 5);
-        c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size() + 2;
+        c.gridy = listAnswersForTheQuestion.size() + 3;
         c.gridwidth = 10;
         c.gridheight = 3;
         questionPanel.add(explanationPanel, c);
-
-        c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size() + 6;
-        c.gridwidth = 10;
-        c.gridheight = 1;
-        questionPanel.add(separator2, c);
 
         c.gridy = listAnswersForTheQuestion.size() + 7;
         c.gridwidth = 10;
@@ -348,6 +336,7 @@ public class GameWindow extends JFrame implements ActionListener {
         }
         if (e.getSource() == nextButton) {
             if (currentNumber >= MAX_NUMBER_OF_QUESTION) {
+                nextButton.setVisible(false);
                 new ResultWindow.Builder()
                         .withAdvancement(advancement)
                         .withConnect(connect)

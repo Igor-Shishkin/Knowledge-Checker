@@ -261,8 +261,8 @@ public class GreetingWindow extends JFrame implements ActionListener {
         }
         if (e.getSource() == blitzButton) {
 
-            listOfQuestions = connect.getListOfQuestions();
-
+            FilterListOfQuestions filterListOfQuestions = new FilterListOfQuestions(connect.getListOfQuestions());
+            listOfQuestions = filterListOfQuestions.getShuffledListOfQuestion();
 
             new BlitzWindow(connect, listOfQuestions);
             dispose();

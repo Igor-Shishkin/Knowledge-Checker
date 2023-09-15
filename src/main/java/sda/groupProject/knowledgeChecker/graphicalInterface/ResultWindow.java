@@ -20,6 +20,7 @@ public class ResultWindow extends JFrame implements ActionListener {
     private final int quantityQuestions;
     private int currentNumber;
     private JLabel resultLabel;
+    private JLabel detailsLabel;
     private JPanel resultPanel;
     private JPanel showQuestionPanel;
     private JPanel reviewPanel;
@@ -34,6 +35,7 @@ public class ResultWindow extends JFrame implements ActionListener {
     Advancement advancement;
 
 
+
     private ResultWindow(JSONConnector connect, int score, int quantityQuestions, Advancement advancement,
                         String[] listOfCategory, List<GraficalElementsOfQuestion> listOfPanels) {
         this.connect = connect;
@@ -43,10 +45,14 @@ public class ResultWindow extends JFrame implements ActionListener {
         this.listOfCategory = listOfCategory;
         this.listOfPanels = listOfPanels;
 
+        currentNumber = quantityQuestions-1;
+
         setResultPanel();
+        setReviewPanel();
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
-        this.add(resultPanel);
+        JScrollPane scrollPane = new JScrollPane(resultPanel);
+        this.add(scrollPane);
 
 
         this.pack();
@@ -54,6 +60,41 @@ public class ResultWindow extends JFrame implements ActionListener {
         this.setLocationRelativeTo(null);
         this.setTitle("RESULT OF TEST");
         this.setVisible(true);
+    }
+
+    private void setReviewPanel() {
+        ImageIcon forwardIcon = new ImageIcon("src/main/resources/next.png");
+        ImageIcon backIcon = new ImageIcon("src/main/resources/previous.png");
+        forwardButton = new JButton(forwardIcon);
+        forwardButton.addActionListener(this);
+        backButton = new JButton(backIcon);
+        backButton.addActionListener(this);
+        forwardButton.setBackground(Color.GRAY);
+        backButton.setBackground(Color.GRAY);
+
+        JPanel nextBackButtonPanel = new JPanel(new GridLayout(1,2,5,5));
+        nextBackButtonPanel.add(backButton);
+        nextBackButtonPanel.add(forwardButton);
+
+        reviewPanel = new JPanel(new GridBagLayout());
+
+        c.gridx = 0;
+        c.gridy = 0;
+        reviewPanel.add(nextBackButtonPanel, c);
+
+        showQuestionPanel = new JPanel(new GridLayout(1,1,5,5));
+
+        c.gridx = 0;
+        c.gridy = 1;
+        reviewPanel.add(showQuestionPanel, c);
+
+        c.gridx = 0;
+        c.gridy = 4;
+        c.gridwidth = 2;
+        resultPanel.add(reviewPanel, c);
+
+        reviewPanel.setVisible(false);
+
     }
 
     private void setResultPanel() {
@@ -85,14 +126,12 @@ public class ResultWindow extends JFrame implements ActionListener {
         double percent = (double) score / quantityQuestions * 100;
         resultText = (percent >= 80) ? String.format("<html>You scored %d points out of %d<br>or %3.1f percent.<br>"
                         .concat("This is a great result, congratulations!"),
-                score, quantityQuestions, percent)
+                        score, quantityQuestions, percent)
                 : String.format("<html>You scored %d points out of %d<br>or %3.1f percent.<br>"
                         .concat("Much work to be done :(<br>Good luck on your next try"),
                 score, quantityQuestions, percent);
         resultLabel = new JLabel(resultText);
-        resultLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 30));
-
-
+        resultLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 30));
 
         String categories = "";
         for (String category : listOfCategory) {
@@ -100,7 +139,7 @@ public class ResultWindow extends JFrame implements ActionListener {
         }
         String detailsText = String.format("<html>Categories:<br> %s<br>Level: %s<br>Quantity of questions: %d</html>",
                 categories.substring(0,categories.length()-4), advancement, quantityQuestions);
-        JLabel detailsLabel = new JLabel(detailsText);
+        detailsLabel = new JLabel(detailsText);
         detailsLabel.setBorder(BorderFactory.createTitledBorder("Details"));
         detailsLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 25));
 
@@ -122,7 +161,7 @@ public class ResultWindow extends JFrame implements ActionListener {
 
         c.insets = new Insets(10,10,10,10);
         c.gridx = 0;
-        c.gridy = 4;
+        c.gridy = 3;
         c.gridwidth = 2;
         resultPanel.add(buttonsPanel, c);
 
@@ -143,6 +182,7 @@ public class ResultWindow extends JFrame implements ActionListener {
 
                 reviewPanel.setVisible(true);
                 resultLabel.setVisible(false);
+                detailsLabel.setVisible(false);
 
                 if (currentNumber == listOfPanels.size()) {
                     currentNumber--;
@@ -156,6 +196,7 @@ public class ResultWindow extends JFrame implements ActionListener {
             }  else {
                 reviewPanel.setVisible(false);
                 resultLabel.setVisible(true);
+                detailsLabel.setVisible(true);
 
                 showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
                 seeTestButton.setText(seeAnswers);

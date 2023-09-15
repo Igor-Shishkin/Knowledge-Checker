@@ -25,4 +25,9 @@ public class FilterListOfQuestions {
                 .limit(numberOfQuestions)
                 .toList();
     }
+    public List<Question> getShuffledListOfQuestion(){
+        Collections.shuffle(questionArrayList);
+        return questionArrayList;
+    }
+
 }

@@ -1,6 +1,5 @@
 package sda.groupProject.knowledgeChecker.graphicalInterface;
 
-import sda.groupProject.knowledgeChecker.data.Advancement;
 import sda.groupProject.knowledgeChecker.data.JSONConnector;
 
 import javax.swing.*;
@@ -12,6 +11,7 @@ import java.util.List;
 public class ResultForBlitz extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
     private final Color DARK_GREEN = new Color(0x066C00);
+    private int QUONTYTI_OF_QUESTIONS;
     private final JSONConnector connect;
     private JLabel resultLabel;
     private final List<GraficalElementsOfQuestion> el;
@@ -28,6 +28,8 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     private JButton backButton;
     private GridBagConstraints c;
     private final String seeAnswers = "SEE MY ANSWERS";
+    private JProgressBar progressBar;
+
 
     public ResultForBlitz(JSONConnector connect, List<GraficalElementsOfQuestion> el, double score, int currentNumber,
                           double maxScore) {
@@ -37,7 +39,10 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         this.currentNumber = currentNumber;
         this.maxScore = maxScore;
 
+        QUONTYTI_OF_QUESTIONS = currentNumber + 1;
+
         setResultPanel();
+        setProgressBar();
         setReviewPanel();
 
 
@@ -51,6 +56,16 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         this.setLocationRelativeTo(null);
         this.setTitle("RESULT OF TEST");
         this.setVisible(true);
+    }
+
+    private void setProgressBar() {
+        progressBar = new JProgressBar(0, currentNumber);
+        progressBar.setValue(currentNumber+1);
+        progressBar.setStringPainted(true);
+        progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
+        progressBar.setForeground(Color.red);
+        progressBar.setBackground(Color.black);
+        progressBar.setString(String.format("question %d out of %d", currentNumber+1, QUONTYTI_OF_QUESTIONS));
     }
 
     private void setReviewPanel() {
@@ -81,9 +96,15 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         reviewPanel.setVisible(false);
 
         c.gridx = 0;
+        c.gridy = 2;
+        c.gridwidth = 2;
+        reviewPanel.add(progressBar, c);
+
+        c.gridx = 0;
         c.gridy = 3;
         c.gridwidth = 2;
         resultPanel.add(reviewPanel, c);
+
     }
 
     private void setResultPanel() {
@@ -184,6 +205,8 @@ public class ResultForBlitz extends JFrame implements ActionListener {
             showQuestionPanel.add(el.get(currentNumber).questionPanel());
             backButton.setEnabled(currentNumber>0);
             forwardButton.setEnabled(currentNumber<el.size()-1);
+            progressBar.setString(String.format("question %d out of %d", currentNumber+1, QUONTYTI_OF_QUESTIONS));
+            progressBar.setValue(currentNumber+1);
             this.pack();
         }
         if (e.getSource() == forwardButton) {
@@ -192,6 +215,8 @@ public class ResultForBlitz extends JFrame implements ActionListener {
             showQuestionPanel.add(el.get(currentNumber).questionPanel());
             backButton.setEnabled(currentNumber>0);
             forwardButton.setEnabled(currentNumber<el.size()-1);
+            progressBar.setString(String.format("question %d out of %d", currentNumber+1, QUONTYTI_OF_QUESTIONS));
+            progressBar.setValue(currentNumber+1);
             this.pack();
         }
 
