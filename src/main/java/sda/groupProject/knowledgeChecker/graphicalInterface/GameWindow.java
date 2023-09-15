@@ -29,7 +29,7 @@ public class GameWindow extends JFrame implements ActionListener {
     private final GridBagConstraints c = new GridBagConstraints();
     private JProgressBar progressBar;
 
-    private final List<GraphicalElementsOfQuestion> listWithPanels = new ArrayList<>();
+    private final List<GraphicalElementsOfQuestion> listOfPanels = new ArrayList<>();
 
 
     private GameWindow(String[] chosenCategory, Advancement advancement, int quantityQuestions, JSONConnector connect,
@@ -46,7 +46,7 @@ public class GameWindow extends JFrame implements ActionListener {
         addNewElementsOfQuestionToEL();
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
-        this.add(listWithPanels.get(currentNumber).scrollPane());
+        this.add(listOfPanels.get(currentNumber).scrollPane());
 
         this.pack();
         this.setLayout(new GridLayout(1, 1, 10, 10));
@@ -62,7 +62,7 @@ public class GameWindow extends JFrame implements ActionListener {
         if (e.getSource() == doneButton) {
             actionIfDoneButtonIsClicked();
 
-            boolean isCorrectAnswer = listWithPanels.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct();
+            boolean isCorrectAnswer = listOfPanels.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct();
             if (isCorrectAnswer) {
 
                 actionUfAnswerIsCorrect();
@@ -92,20 +92,22 @@ public class GameWindow extends JFrame implements ActionListener {
 
         addNewElementsOfQuestionToEL();
 
-        this.remove(listWithPanels.get(currentNumber - 1).scrollPane());
-        this.add(listWithPanels.get(currentNumber).scrollPane());
+        this.remove(listOfPanels.get(currentNumber - 1).scrollPane());
+        this.add(listOfPanels.get(currentNumber).scrollPane());
         this.pack();
     }
 
     private void actionForEndOfGame() {
         nextButton.setVisible(false);
+        listOfPanels.get(currentNumber-1)
+                .questionPanel().remove(progressBar);
         new ResultWindow.Builder()
                 .withAdvancement(advancement)
                 .withConnect(connect)
                 .withScore(score)
                 .withQuantityQuestions(MAX_NUMBER_OF_QUESTION)
                 .withListOfCategory(chosenCategory)
-                .withListOfPanels(listWithPanels)
+                .withListOfPanels(listOfPanels)
                 .build();
         dispose();
     }
@@ -115,7 +117,7 @@ public class GameWindow extends JFrame implements ActionListener {
         doneButton.setEnabled(false);
         isRightAnswer.setVisible(true);
         nextButton.setVisible(true);
-        listWithPanels.get(currentNumber).explanationPanel().setVisible(true);
+        listOfPanels.get(currentNumber).explanationPanel().setVisible(true);
 
         String progress = String.format("DONE: %d from %d", currentNumber+1, MAX_NUMBER_OF_QUESTION);
         progressBar.setString(progress);
@@ -126,38 +128,38 @@ public class GameWindow extends JFrame implements ActionListener {
         isRightAnswer.setText("WRONG");
         isRightAnswer.setForeground(Color.RED);
 
-        listWithPanels.get(currentNumber).answerRadioButtons().get(chosenAnswer).setForeground(Color.RED);
+        listOfPanels.get(currentNumber).answerRadioButtons().get(chosenAnswer).setForeground(Color.RED);
 
-        for (Answer answer : listWithPanels.get(currentNumber).listAnswersForTheQuestion()) {
+        for (Answer answer : listOfPanels.get(currentNumber).listAnswersForTheQuestion()) {
             if (answer.correct()) {
                 //set explanation for correct answer
-                listWithPanels.get(currentNumber).rightExplanation()
+                listOfPanels.get(currentNumber).rightExplanation()
                         .setText(HTMLConverter.changeTextToHTML(answer.explanation(), MAX_LENGTH));
                 //set foreground for correct answer
-                listWithPanels.get(currentNumber).answerRadioButtons()
-                        .get(listWithPanels.get(currentNumber).listAnswersForTheQuestion().indexOf(answer))
+                listOfPanels.get(currentNumber).answerRadioButtons()
+                        .get(listOfPanels.get(currentNumber).listAnswersForTheQuestion().indexOf(answer))
                         .setForeground(DARK_GREEN);
             }
         }
         //set foreground for chosen answer
-        listWithPanels.get(currentNumber).answerRadioButtons()
+        listOfPanels.get(currentNumber).answerRadioButtons()
                 .get(chosenAnswer)
                 .setForeground(Color.RED);
-        listWithPanels.get(currentNumber).chosenExplanation().setVisible(true);
-        listWithPanels.get(currentNumber)
+        listOfPanels.get(currentNumber).chosenExplanation().setVisible(true);
+        listOfPanels.get(currentNumber)
                 .chosenExplanation()
                 .setText(HTMLConverter.changeTextToHTML
-                        (listWithPanels.get(currentNumber)
+                        (listOfPanels.get(currentNumber)
                                         .listAnswersForTheQuestion()
                                         .get(chosenAnswer)
                                         .explanation(),
                                 MAX_LENGTH));
 
 
-        for (int i = 0; i < listWithPanels.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
-            listWithPanels.get(currentNumber)
+        for (int i = 0; i < listOfPanels.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
+            listOfPanels.get(currentNumber)
                     .answerRadioButtons().get(i)
-                    .setToolTipText(listWithPanels
+                    .setToolTipText(listOfPanels
                             .get(currentNumber)
                             .listAnswersForTheQuestion()
                             .get(i)
@@ -171,25 +173,25 @@ public class GameWindow extends JFrame implements ActionListener {
         isRightAnswer.setForeground(DARK_GREEN);
 
 
-        listWithPanels.get(currentNumber)
+        listOfPanels.get(currentNumber)
                 .rightExplanation()
-                .setText(HTMLConverter.changeTextToHTML(listWithPanels
+                .setText(HTMLConverter.changeTextToHTML(listOfPanels
                                 .get(currentNumber)
                                 .listAnswersForTheQuestion()
                                 .get(chosenAnswer)
                                 .explanation()
                         , MAX_LENGTH));
 
-        for (int i = 0; i < listWithPanels.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
-            listWithPanels.get(currentNumber)
+        for (int i = 0; i < listOfPanels.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
+            listOfPanels.get(currentNumber)
                     .answerRadioButtons()
                     .get(i)
-                    .setToolTipText(listWithPanels.get(currentNumber)
+                    .setToolTipText(listOfPanels.get(currentNumber)
                             .listAnswersForTheQuestion()
                             .get(i)
                             .explanation());
         }
-        listWithPanels.get(currentNumber).answerRadioButtons()
+        listOfPanels.get(currentNumber).answerRadioButtons()
                 .get(chosenAnswer)
                 .setForeground(DARK_GREEN);
     }
@@ -308,7 +310,7 @@ public class GameWindow extends JFrame implements ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(questionPanel);
 
-        listWithPanels.add(new GraphicalElementsOfQuestion(question,
+        listOfPanels.add(new GraphicalElementsOfQuestion(question,
                 explanationPanel,
                 answersPanel,
                 codePanel,

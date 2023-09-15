@@ -14,10 +14,10 @@ public class ResultWindow extends JFrame implements ActionListener {
 
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
     private final Color DARK_GREEN = new Color(0x066C00);
-    private final JSONConnector connect;
-    private final List<GraphicalElementsOfQuestion> listOfPanels;
+    private final transient JSONConnector connect;
+    private final transient List<GraphicalElementsOfQuestion> listOfPanels;
     private final int score;
-    private final int quantityQuestions;
+    private final int quantityOfQuestion;
     private int currentNumber;
     private JLabel resultLabel;
     private JLabel detailsLabel;
@@ -33,6 +33,8 @@ public class ResultWindow extends JFrame implements ActionListener {
     private final String seeAnswers = "SEE MY ANSWERS";
     String[] listOfCategory;
     Advancement advancement;
+    private JProgressBar progressBar;
+    private final String textForProgressBar = "question %d out of %d";
 
 
 
@@ -40,12 +42,13 @@ public class ResultWindow extends JFrame implements ActionListener {
                         String[] listOfCategory, List<GraphicalElementsOfQuestion> listOfPanels) {
         this.connect = connect;
         this.score = score;
-        this.quantityQuestions = quantityQuestions;
+        this.quantityOfQuestion = quantityQuestions;
         this.advancement = advancement;
         this.listOfCategory = listOfCategory;
         this.listOfPanels = listOfPanels;
 
         currentNumber = quantityQuestions-1;
+        setProgressBar();
 
         setResultPanel();
         setReviewPanel();
@@ -56,12 +59,45 @@ public class ResultWindow extends JFrame implements ActionListener {
 
 
         this.pack();
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setTitle("RESULT OF TEST");
         this.setVisible(true);
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource()==trainButton) {
+            new GreetingWindow(connect);
+            dispose();
+        }
+        if (e.getSource()==exitButton) {
+            System.exit(1);
+        }
+        if (e.getSource() == seeTestButton) {
+            if (seeTestButton.getText().equals(seeAnswers)) {
+                actionIfSeeAnswersButtonIsClicked();
+            }  else {
+                actionIfSeeResultButtonIsClicked();
+            }
+        }
+        if (e.getSource() == backButton) {
+            actionIfBackButtonIsClicked();
+        }
+        if (e.getSource() == forwardButton) {
+            actionIfForwardButtonIsClicked();
+        }
+    }
+
+    private void setProgressBar() {
+        progressBar = new JProgressBar(0, currentNumber);
+        progressBar.setValue(currentNumber+2);
+        progressBar.setStringPainted(true);
+        progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
+        progressBar.setForeground(Color.red);
+        progressBar.setBackground(Color.black);
+        progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
+    }
     private void setReviewPanel() {
         ImageIcon forwardIcon = new ImageIcon("src/main/resources/next.png");
         ImageIcon backIcon = new ImageIcon("src/main/resources/previous.png");
@@ -89,13 +125,68 @@ public class ResultWindow extends JFrame implements ActionListener {
         reviewPanel.add(showQuestionPanel, c);
 
         c.gridx = 0;
+        c.gridy = 2;
+        c.gridwidth = 2;
+        reviewPanel.add(progressBar, c);
+
+        c.gridx = 0;
         c.gridy = 4;
         c.gridwidth = 2;
         resultPanel.add(reviewPanel, c);
 
         reviewPanel.setVisible(false);
-
     }
+
+    private void actionIfForwardButtonIsClicked() {
+        showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+        currentNumber++;
+        showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+        backButton.setEnabled(currentNumber>0);
+        forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
+        progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
+        progressBar.setValue(currentNumber+1);
+        this.pack();
+    }
+
+    private void actionIfBackButtonIsClicked() {
+        showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+        currentNumber--;
+        showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+        backButton.setEnabled(currentNumber>0);
+        forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
+        progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
+        progressBar.setValue(currentNumber+1);
+        this.pack();
+    }
+
+    private void actionIfSeeResultButtonIsClicked() {
+
+        reviewPanel.setVisible(false);
+        resultLabel.setVisible(true);
+        detailsLabel.setVisible(true);
+
+        showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+        seeTestButton.setText(seeAnswers);
+
+        this.pack();
+    }
+
+    private void actionIfSeeAnswersButtonIsClicked() {
+        reviewPanel.setVisible(true);
+        resultLabel.setVisible(false);
+        detailsLabel.setVisible(false);
+
+        if (currentNumber == listOfPanels.size()) {
+            currentNumber--;
+        }
+        forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
+        showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+        this.pack();
+
+        String seeResult = "SEE MY RESULT";
+        seeTestButton.setText(seeResult);
+    }
+
 
     private void setResultPanel() {
         exitButton = new JButton("EXIT");
@@ -123,13 +214,13 @@ public class ResultWindow extends JFrame implements ActionListener {
         buttonsPanel.add(seeTestButton);
 
         String resultText;
-        double percent = (double) score / quantityQuestions * 100;
+        double percent = (double) score / quantityOfQuestion * 100;
         resultText = (percent >= 80) ? String.format("<html>You scored %d points out of %d<br>or %3.1f percent.<br>"
                         .concat("This is a great result, congratulations!"),
-                        score, quantityQuestions, percent)
+                        score, quantityOfQuestion, percent)
                 : String.format("<html>You scored %d points out of %d<br>or %3.1f percent.<br>"
                         .concat("Much work to be done :(<br>Good luck on your next try"),
-                score, quantityQuestions, percent);
+                score, quantityOfQuestion, percent);
         resultLabel = new JLabel(resultText);
         resultLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 30));
 
@@ -138,7 +229,7 @@ public class ResultWindow extends JFrame implements ActionListener {
             categories = categories.concat(category).concat("<br>");
         }
         String detailsText = String.format("<html>Categories:<br> %s<br>Level: %s<br>Quantity of questions: %d</html>",
-                categories.substring(0,categories.length()-4), advancement, quantityQuestions);
+                categories.substring(0,categories.length()-4), advancement, quantityOfQuestion);
         detailsLabel = new JLabel(detailsText);
         detailsLabel.setBorder(BorderFactory.createTitledBorder("Details"));
         detailsLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 25));
@@ -166,63 +257,6 @@ public class ResultWindow extends JFrame implements ActionListener {
         resultPanel.add(buttonsPanel, c);
 
     }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource()==trainButton) {
-            new GreetingWindow(connect);
-            dispose();
-        }
-        if (e.getSource()==exitButton) {
-            System.exit(1);
-        }
-        if (e.getSource() == seeTestButton) {
-
-            if (seeTestButton.getText().equals(seeAnswers)) {
-
-                reviewPanel.setVisible(true);
-                resultLabel.setVisible(false);
-                detailsLabel.setVisible(false);
-
-                if (currentNumber == listOfPanels.size()) {
-                    currentNumber--;
-                }
-                forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
-                showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
-                this.pack();
-
-                String seeResult = "SEE MY RESULT";
-                seeTestButton.setText(seeResult);
-            }  else {
-                reviewPanel.setVisible(false);
-                resultLabel.setVisible(true);
-                detailsLabel.setVisible(true);
-
-                showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
-                seeTestButton.setText(seeAnswers);
-
-                this.pack();
-            }
-        }
-        if (e.getSource() == backButton) {
-            showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
-            currentNumber--;
-            showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
-            backButton.setEnabled(currentNumber>0);
-            forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
-            this.pack();
-        }
-        if (e.getSource() == forwardButton) {
-            showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
-            currentNumber++;
-            showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
-            backButton.setEnabled(currentNumber>0);
-            forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
-            this.pack();
-        }
-
-    }
-
 
 
     public static class Builder {
@@ -260,6 +294,5 @@ public class ResultWindow extends JFrame implements ActionListener {
         public ResultWindow build() {
             return new ResultWindow(connect, score, quantityQuestions, advancement, listOfCategory, listOfPanels);
         }
-
     }
 }

@@ -1,5 +1,6 @@
 package sda.groupProject.knowledgeChecker.graphicalInterface;
 
+import sda.groupProject.knowledgeChecker.data.Advancement;
 import sda.groupProject.knowledgeChecker.data.JSONConnector;
 
 import javax.swing.*;
@@ -14,7 +15,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     private final int quantityOfQuestion;
     private final transient JSONConnector connect;
     private JLabel resultLabel;
-    private final List<GraphicalElementsOfQuestion> listOfPanels;
+    private final transient List<GraphicalElementsOfQuestion> listOfPanels;
     private final double score;
     private final double maxScore;
     private int currentNumber;
@@ -32,7 +33,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     private final String textForProgressBar = "question %d out of %d";
 
 
-    public ResultForBlitz(JSONConnector connect, List<GraphicalElementsOfQuestion> el, double score, int currentNumber,
+    private ResultForBlitz(JSONConnector connect, List<GraphicalElementsOfQuestion> el, double score, int currentNumber,
                           double maxScore) {
         this.connect = connect;
         this.listOfPanels = el;
@@ -53,7 +54,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
 
 
         this.pack();
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setTitle("RESULT OF TEST");
         this.setVisible(true);
@@ -71,49 +72,64 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         if (e.getSource() == seeTestButton) {
 
             if (seeTestButton.getText().equals(seeAnswers)) {
-
-                reviewPanel.setVisible(true);
-                resultLabel.setVisible(false);
-
-                if (currentNumber == listOfPanels.size()) {
-                    currentNumber--;
-                }
-                forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
-                showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
-                this.pack();
-
-                seeTestButton.setText("SEE MY RESULT");
+                actionIfSeeAnswersButtonIsClicked();
             }  else {
-                reviewPanel.setVisible(false);
-                resultLabel.setVisible(true);
-
-                showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
-                seeTestButton.setText(seeAnswers);
-
-                this.pack();
+                actionIfSeeResultButtonIsClicked();
             }
         }
         if (e.getSource() == backButton) {
-            showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
-            currentNumber--;
-            showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
-            backButton.setEnabled(currentNumber>0);
-            forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
-            progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-            progressBar.setValue(currentNumber+1);
-            this.pack();
+            actionIsBackButtonIsClicked();
         }
         if (e.getSource() == forwardButton) {
-            showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
-            currentNumber++;
-            showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
-            backButton.setEnabled(currentNumber>0);
-            forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
-            progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-            progressBar.setValue(currentNumber+1);
-            this.pack();
+            actionIfForwardButtonIsClicked();
         }
 
+    }
+
+    private void actionIfForwardButtonIsClicked() {
+        showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+        currentNumber++;
+        showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+        backButton.setEnabled(currentNumber>0);
+        forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
+        progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
+        progressBar.setValue(currentNumber+1);
+        this.pack();
+    }
+
+    private void actionIsBackButtonIsClicked() {
+        showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+        currentNumber--;
+        showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+        backButton.setEnabled(currentNumber>0);
+        forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
+        progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
+        progressBar.setValue(currentNumber+1);
+        this.pack();
+    }
+
+    private void actionIfSeeResultButtonIsClicked() {
+        reviewPanel.setVisible(false);
+        resultLabel.setVisible(true);
+
+        showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
+        seeTestButton.setText(seeAnswers);
+
+        this.pack();
+    }
+
+    private void actionIfSeeAnswersButtonIsClicked() {
+        reviewPanel.setVisible(true);
+        resultLabel.setVisible(false);
+
+        seeTestButton.setText("SEE MY RESULT");
+
+        if (currentNumber == listOfPanels.size()) {
+            currentNumber--;
+        }
+        forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
+        showQuestionPanel.add(listOfPanels.get(currentNumber).questionPanel());
+        this.pack();
     }
 
 
@@ -219,7 +235,43 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         c.gridy = 1;
         c.gridwidth = 2;
         resultPanel.add(buttonsPanel, c);
+    }
 
+    public static class Builder {
+        private JSONConnector connect;
+        private double score;
+        private int currentNumber;
+        private double maxScore;
+        private String[] listOfCategory;
+        private List<GraphicalElementsOfQuestion> listOfPanels;
+
+        public Builder withConnect (JSONConnector connect){
+            this.connect = connect;
+            return this;
+        }
+        public Builder withScore (int score){
+            this.score = score;
+            return this;
+        }
+        public Builder withCurrentNumber (int currentNumber){
+            this.currentNumber = currentNumber;
+            return this;
+        }
+        public Builder withScore (double score){
+            this.score = score;
+            return this;
+        }
+        public Builder withMaxScore (double maxScore){
+            this.maxScore = maxScore;
+            return this;
+        }
+        public Builder withListOfPanels (List<GraphicalElementsOfQuestion> listOfPanels){
+            this.listOfPanels = listOfPanels;
+            return this;
+        }
+        public ResultForBlitz build() {
+            return new ResultForBlitz(connect, listOfPanels, score, currentNumber, maxScore);
+        }
 
     }
 }

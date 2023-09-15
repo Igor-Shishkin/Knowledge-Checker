@@ -30,7 +30,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
     private final GridBagConstraints c = new GridBagConstraints();
     private JProgressBar progressBar;
 
-    private final List<GraphicalElementsOfQuestion> el = new ArrayList<>();
+    private final List<GraphicalElementsOfQuestion> listOfPanels = new ArrayList<>();
 
 
     BlitzWindow(JSONConnector connect,  List<Question> listOfQuestions) {
@@ -43,11 +43,11 @@ public class BlitzWindow extends JFrame implements ActionListener {
         addNewElementsOfQuestion();
 
         Timer timer = new Timer();
-        TimerTask repeatedTask = new TimerForProgressBar(progressBar, el, nextButton, currentNumber);
+        TimerTask repeatedTask = new TimerForProgressBar(progressBar, listOfPanels, nextButton, currentNumber);
         timer.scheduleAtFixedRate(repeatedTask, 1000,1000);
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
-        this.add(el.get(currentNumber).scrollPane());
+        this.add(listOfPanels.get(currentNumber).scrollPane());
 
         this.pack();
         this.setLayout(new GridLayout(1, 1, 10, 10));
@@ -65,8 +65,16 @@ public class BlitzWindow extends JFrame implements ActionListener {
         if (e.getSource() == nextButton) {
 
             if (nextButton.getText().equals("<html>TIME IS<br>OVER</html>")) {
-                el.get(currentNumber).questionPanel().remove(progressBar);
-                new ResultForBlitz(connect, el, score, currentNumber, maxScore);
+                listOfPanels.get(currentNumber).questionPanel().remove(progressBar);
+
+                new ResultForBlitz.Builder()
+                        .withScore(score)
+                        .withCurrentNumber(currentNumber)
+                        .withConnect(connect)
+                        .withListOfPanels(listOfPanels)
+                        .withMaxScore(maxScore)
+                        .build();
+
                 nextButton.setVisible(false);
                 dispose();
 
@@ -76,19 +84,19 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
                 maxScore = maxScore + getPointForCorrectAnswer();
 
-                if (el.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
+                if (listOfPanels.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
                     actionIfAnswerIsCorrect();
                 } else {
                     actionsIfAnswerIsNotCorrect();
                 }
 
-                el.get(currentNumber - 1).questionPanel().remove(buttonsPanel);
-                el.get(currentNumber - 1).questionPanel().remove(progressBar);
+                listOfPanels.get(currentNumber - 1).questionPanel().remove(buttonsPanel);
+                listOfPanels.get(currentNumber - 1).questionPanel().remove(progressBar);
 
                 addNewElementsOfQuestion();
 
-                this.remove(el.get(currentNumber - 1).scrollPane());
-                this.add(el.get(currentNumber).scrollPane());
+                this.remove(listOfPanels.get(currentNumber - 1).scrollPane());
+                this.add(listOfPanels.get(currentNumber).scrollPane());
                 this.pack();
             }
 
@@ -108,68 +116,68 @@ public class BlitzWindow extends JFrame implements ActionListener {
     }
 
     private void changeGraphicalElementsForReviewWrongAnswer() {
-        el.get(currentNumber)
+        listOfPanels.get(currentNumber)
                 .answerRadioButtons()
                 .get(chosenAnswer)
                 .setForeground(Color.RED);
         separator1.setVisible(true);
 
-        for (Answer answer : el.get(currentNumber).listAnswersForTheQuestion()) {
+        for (Answer answer : listOfPanels.get(currentNumber).listAnswersForTheQuestion()) {
             if (answer.correct()) {
-                el.get(currentNumber)
+                listOfPanels.get(currentNumber)
                         .rightExplanation()
                         .setText(HTMLConverter
                                 .changeTextToHTML(answer.explanation()
                                         , MAX_LENGTH));
-                el.get(currentNumber)
+                listOfPanels.get(currentNumber)
                         .answerRadioButtons()
-                        .get(el
+                        .get(listOfPanels
                                 .get(currentNumber)
                                 .listAnswersForTheQuestion()
                                 .indexOf(answer))
                                     .setForeground(MY_GREEN);
             }
         }
-        el.get(currentNumber).answerRadioButtons()
+        listOfPanels.get(currentNumber).answerRadioButtons()
                 .get(chosenAnswer)
                 .setForeground(Color.RED);
-        el.get(currentNumber)
+        listOfPanels.get(currentNumber)
                 .chosenExplanation()
                 .setVisible(true);
-        el.get(currentNumber)
+        listOfPanels.get(currentNumber)
                 .chosenExplanation()
                 .setText(HTMLConverter.changeTextToHTML
-                (el.get(currentNumber)
+                (listOfPanels.get(currentNumber)
                         .listAnswersForTheQuestion()
                         .get(chosenAnswer)
                         .explanation()
                             , MAX_LENGTH));
-        el.get(currentNumber)
+        listOfPanels.get(currentNumber)
                 .explanationPanel()
                 .setVisible(true);
 
-        for (int i = 0; i < el.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
-            el.get(currentNumber)
+        for (int i = 0; i < listOfPanels.get(currentNumber).listAnswersForTheQuestion().size(); i++) {
+            listOfPanels.get(currentNumber)
                     .answerRadioButtons()
                     .get(i)
-                    .setToolTipText(el
+                    .setToolTipText(listOfPanels
                             .get(currentNumber)
                             .listAnswersForTheQuestion()
                             .get(i)
                             .explanation());
         }
-        el.get(currentNumber).questionPanel().repaint();
-        el.get(currentNumber).scrollPane().repaint();
+        listOfPanels.get(currentNumber).questionPanel().repaint();
+        listOfPanels.get(currentNumber).scrollPane().repaint();
     }
 
     private void addExplanationComponentsToQuestionPanelWrongAnswer(double points) {
         JLabel scoreLabelForTheQuestion = new JLabel(Double.toString(points));
-        JLabel levelLabel = new JLabel(el
+        JLabel levelLabel = new JLabel(listOfPanels
                 .get(currentNumber)
                 .question()
                 .advancement()
                 .toString());
-        JLabel categoryLabel = new JLabel(el
+        JLabel categoryLabel = new JLabel(listOfPanels
                 .get(currentNumber)
                 .question()
                 .category()
@@ -188,13 +196,13 @@ public class BlitzWindow extends JFrame implements ActionListener {
         c.gridy = 2;
         c.gridwidth = 1;
         c.gridheight = 1;
-        el.get(currentNumber).questionPanel().add(scoreLabelForTheQuestion, c);
+        listOfPanels.get(currentNumber).questionPanel().add(scoreLabelForTheQuestion, c);
 
         c.gridy = 3;
-        el.get(currentNumber).questionPanel().add(levelLabel, c);
+        listOfPanels.get(currentNumber).questionPanel().add(levelLabel, c);
 
         c.gridy = 4;
-        el.get(currentNumber).questionPanel().add(categoryLabel, c);
+        listOfPanels.get(currentNumber).questionPanel().add(categoryLabel, c);
     }
 
     private void actionIfAnswerIsCorrect() {
@@ -209,47 +217,47 @@ public class BlitzWindow extends JFrame implements ActionListener {
     }
 
     private void changeGraphicalElementsForReviewCorrectAnswer() {
-        el.get(currentNumber)
+        listOfPanels.get(currentNumber)
                 .rightExplanation()
                 .setText(HTMLConverter
-                        .changeTextToHTML(el.get(currentNumber)
+                        .changeTextToHTML(listOfPanels.get(currentNumber)
                                 .listAnswersForTheQuestion()
                                 .get(chosenAnswer)
                                 .explanation()
                                     , MAX_LENGTH));
-        el.get(currentNumber).explanationPanel().setVisible(true);
+        listOfPanels.get(currentNumber).explanationPanel().setVisible(true);
         separator1.setVisible(true);
 
-        for (int i = 0; i < el
+        for (int i = 0; i < listOfPanels
                 .get(currentNumber)
                 .listAnswersForTheQuestion()
                 .size();
              i++) {
-            el.get(currentNumber)
+            listOfPanels.get(currentNumber)
                     .answerRadioButtons()
                     .get(i)
-                    .setToolTipText(el
+                    .setToolTipText(listOfPanels
                             .get(currentNumber)
                             .listAnswersForTheQuestion()
                             .get(i)
                             .explanation());
         }
-        el.get(currentNumber)
+        listOfPanels.get(currentNumber)
                 .answerRadioButtons()
                 .get(chosenAnswer)
                 .setForeground(MY_GREEN);
-        el.get(currentNumber).questionPanel().repaint();
-        el.get(currentNumber).scrollPane().repaint();
+        listOfPanels.get(currentNumber).questionPanel().repaint();
+        listOfPanels.get(currentNumber).scrollPane().repaint();
     }
 
     private void addExplanationComponentsToQuestionPanelCorrectAnswer(double points) {
         JLabel scoreLabelForTheQuestion = new JLabel(Double.toString(points));
-        JLabel levelLabel = new JLabel(el
+        JLabel levelLabel = new JLabel(listOfPanels
                 .get(currentNumber)
                 .question()
                 .advancement()
                 .toString());
-        JLabel categoryLabel = new JLabel(el
+        JLabel categoryLabel = new JLabel(listOfPanels
                 .get(currentNumber)
                 .question()
                 .category()
@@ -269,30 +277,30 @@ public class BlitzWindow extends JFrame implements ActionListener {
         c.gridy = 2;
         c.gridwidth = 1;
         c.gridheight = 1;
-        el.get(currentNumber).questionPanel().add(scoreLabelForTheQuestion, c);
+        listOfPanels.get(currentNumber).questionPanel().add(scoreLabelForTheQuestion, c);
 
         c.gridy = 3;
-        el.get(currentNumber).questionPanel().add(levelLabel, c);
+        listOfPanels.get(currentNumber).questionPanel().add(levelLabel, c);
 
         c.gridy = 4;
-        el.get(currentNumber).questionPanel().add(categoryLabel, c);
+        listOfPanels.get(currentNumber).questionPanel().add(categoryLabel, c);
     }
 
     private double getPointForCorrectAnswer() {
-        if (el.get(currentNumber).question().advancement() == Advancement.BASIC) {
+        if (listOfPanels.get(currentNumber).question().advancement() == Advancement.BASIC) {
             return 1;
         }
-        if (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) {
+        if (listOfPanels.get(currentNumber).question().advancement() == Advancement.MEDIUM) {
             return 2;
         }
         return 3;
     }
 
     private double getPointForWrongAnswer() {
-        if (el.get(currentNumber).question().advancement() == Advancement.BASIC) {
+        if (listOfPanels.get(currentNumber).question().advancement() == Advancement.BASIC) {
             return -0.5;
         }
-        if (el.get(currentNumber).question().advancement() == Advancement.MEDIUM) {
+        if (listOfPanels.get(currentNumber).question().advancement() == Advancement.MEDIUM) {
             return -1;
         }
         return -1.5;
@@ -425,7 +433,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         JScrollPane scrollPane = new JScrollPane(questionPanel);
 
-        el.add(new GraphicalElementsOfQuestion(question,
+        listOfPanels.add(new GraphicalElementsOfQuestion(question,
                 explanationPanel,
                 answersPanel,
                 codePanel,
