@@ -1,9 +1,6 @@
 package sda.groupProject.knowledgeChecker.graphicalInterface;
 
-import sda.groupProject.knowledgeChecker.data.Advancement;
-import sda.groupProject.knowledgeChecker.data.FilterListOfQuestions;
-import sda.groupProject.knowledgeChecker.data.JSONConnector;
-import sda.groupProject.knowledgeChecker.data.Question;
+import sda.groupProject.knowledgeChecker.data.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,6 +33,11 @@ public class GreetingWindow extends JFrame implements ActionListener {
     private boolean isLevelChosen = false;
     private boolean isCategoryChosen = false;
     private boolean isQuantityChosen = false;
+    private JMenuBar myMenuBar;
+    private JMenuItem testRulesItem;
+    private JMenuItem interviewRulesItem;
+    private JMenuItem aboutTheProjectItem;
+
 
     public GreetingWindow(JSONConnector connect) {
         this.connect = connect;
@@ -46,13 +48,36 @@ public class GreetingWindow extends JFrame implements ActionListener {
         this.add(greetingPanel);
 
         setFontForComponents(this);
+        setMyMenuBar();
 
+        this.setJMenuBar(myMenuBar);
         this.pack();
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setLocationRelativeTo(null);
         this.setTitle("CHECK YOUR KNOWLEDGE");
         this.setVisible(true);
     }
+
+    private void setMyMenuBar() {
+        testRulesItem = new JMenuItem("Test");
+        interviewRulesItem = new JMenuItem("Interview");
+        JMenu rulesMenu = new JMenu("Rules");
+        rulesMenu.add(testRulesItem);
+        rulesMenu.add(interviewRulesItem);
+
+        aboutTheProjectItem = new JMenuItem("About the project");
+        JMenu informationMenu = new JMenu("Information");
+        informationMenu.add(aboutTheProjectItem);
+
+        testRulesItem.addActionListener(this);
+        interviewRulesItem.addActionListener(this);
+        aboutTheProjectItem.addActionListener(this);
+
+        myMenuBar = new JMenuBar();
+        myMenuBar.add(rulesMenu);
+        myMenuBar.add(informationMenu);
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == startButton) {
@@ -92,6 +117,47 @@ public class GreetingWindow extends JFrame implements ActionListener {
         }
         if (e.getSource() == blitzButton) {
             actionIfBlitzButtonIsPressed();
+        }
+        if (e.getSource() == aboutTheProjectItem) {
+            String textAboutProject = "<html>Autors:<br>Igor Shishkin<br>Arthur Pososhko<br><br>"
+                    .concat("Mentor:<br>Andrzej Chmiel<br><br>Test created by:<br>Andrzej Chmiel");
+            JLabel labelAboutProject = new JLabel(textAboutProject);
+            labelAboutProject.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 23));
+            labelAboutProject.setBorder(BorderFactory.createLineBorder(new Color(0x79ABA9), 3));
+            JOptionPane.showMessageDialog(this,
+                    labelAboutProject, "KNOWLEDGE-CHECKER", JOptionPane.PLAIN_MESSAGE);
+        }
+        if (e.getSource() == testRulesItem) {
+            String textAboutUsualGame = "You can select the category, difficulty level and number of questions. "
+                    .concat("After each answer, you can see the correct option and explanations for the selected ")
+                    .concat("answer and for the correct one.<br>")
+                    .concat("To see explanations for other questions, you need to hover your mouse over them.<br>")
+                    .concat("After the test, you can see your result and review your test again.");
+            JLabel labelUsualGameRules = new JLabel(HTMLConverter.changeTextToHTML(textAboutUsualGame, 60));
+            labelUsualGameRules.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 23));
+            labelUsualGameRules.setBorder(BorderFactory.createLineBorder(new Color(0x79ABA9), 3));
+            JOptionPane.showMessageDialog(this,
+                    labelUsualGameRules, "TEST - RULES", JOptionPane.PLAIN_MESSAGE);
+        }
+        if (e.getSource() == interviewRulesItem) {
+            String textInterviewRules = "<html>You have three minutes<br>to answer as many questions as possible.<br>"
+                    .concat("The questions are in random order,<br>of all categories and levels.<br><br>")
+                    .concat("For the correct answer you will be awarded:<br>")
+                    .concat("basic level: 1 point<br>")
+                    .concat("intermediate level: 2 points<br>")
+                    .concat("expert level: 3 points<br><br>")
+                    .concat("For an incorrect answer the following will be deducted:<br>")
+                    .concat("basic level: 0.5 point<br>")
+                    .concat("intermediate level: 1 point<br>")
+                    .concat("expert level: 1.5 points<br><br>")
+                    .concat("To be hired, you need to score at<br>least 80 percent of the possible score and<br>")
+                    .concat("at the same time at least 20 points.<br>")
+                    .concat("Good luck!</html>");
+            JLabel labelInterviewRules = new JLabel(textInterviewRules);
+            labelInterviewRules.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 23));
+            labelInterviewRules.setBorder(BorderFactory.createLineBorder(new Color(0x79ABA9), 3));
+            JOptionPane.showMessageDialog(this,
+                    labelInterviewRules, "INTERVIEW - RULES", JOptionPane.PLAIN_MESSAGE);
         }
     }
 
@@ -239,7 +305,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
         c.gridheight = 1;
         c.gridwidth = 3;
         greetingPanel.add(levelPanel, c);
-      
+
         c.gridx = 2;
         c.gridy = 2;
         greetingPanel.add(quantityQuestionPanel, c);
