@@ -77,7 +77,5 @@ class FilterListOfQuestionsTest {
         assertThat(filteredList)
                 .isNotEqualTo(checkList)
                 .hasSize(7);
-
-
     }
 }
