@@ -29,5 +29,4 @@ public class FilterListOfQuestions {
         Collections.shuffle(questionArrayList);
         return questionArrayList;
     }
-
 }
