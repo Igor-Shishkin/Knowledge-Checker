@@ -1,53 +1,31 @@
 package sda.groupProject.knowledgeChecker.data;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class AnswerTest {
     @Test
-    void constructAnswerAndVerifyProperties() {
-        // given
-        String answerText = "This is an answer.";
-        boolean isCorrect = true;
-        String explanation = "Explanation for the correct answer.";
+    void testAnswerConstructorAndGetters() {
+        Answer answer = new Answer("Java", true, "Explanation");
 
-        // when
-        Answer answer = new Answer(answerText, isCorrect, explanation);
-
-        // then
-        assertEquals(answerText, answer.text());
-        assertTrue(answer.correct());
-        assertEquals(explanation, answer.explanation());
+        // Test getters using AssertJ assertions
+        assertThat(answer.text()).isEqualTo("Java");
+        assertThat(answer.correct()).isTrue();
+        assertThat(answer.explanation()).isEqualTo("Explanation");
     }
 
     @Test
-    void compareEqualAnswers() {
-        // given
-        Answer answer1 = new Answer("Answer text.", true, "Explanation 1");
-        Answer answer2 = new Answer("Answer text.", true, "Explanation 1");
+    void testEqualsAndHashCode() {
+        Answer answer1 = new Answer("Java", true, "Explanation");
+        Answer answer2 = new Answer("Java", true, "Explanation");
+        Answer answer3 = new Answer("C++", false, "Different Explanation");
 
-        // then
-        assertEquals(answer1, answer2);
-    }
+        // Test equality using AssertJ assertions
+        assertThat(answer1).isEqualTo(answer2)
+                .isNotEqualTo(answer3);
 
-    @Test
-    void compareDifferentAnswers() {
-        // given
-        Answer answer1 = new Answer("Answer text.", true, "Explanation 1");
-        Answer answer3 = new Answer("Different text.", true, "Explanation 1");
-
-        // then
-        assertNotEquals(answer1, answer3);
-    }
-
-    @Test
-    void compareHashCodeOfEqualAnswers() {
-        // given
-        Answer answer1 = new Answer("Answer text.", true, "Explanation 1");
-        Answer answer2 = new Answer("Answer text.", true, "Explanation 1");
-
-        // then
-        assertEquals(answer1.hashCode(), answer2.hashCode());
+        // Test hash code using AssertJ assertions
+        assertThat(answer1.hashCode()).isEqualTo(answer2.hashCode())
+                .isNotEqualTo(answer3.hashCode());
     }
 }

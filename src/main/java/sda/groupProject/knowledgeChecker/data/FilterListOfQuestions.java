@@ -27,7 +27,7 @@ public class FilterListOfQuestions {
     }
     public List<Question> getShuffledListOfQuestion(){
         Collections.shuffle(questionArrayList);
+        Collections.shuffle(questionArrayList);
         return questionArrayList;
     }
-
 }

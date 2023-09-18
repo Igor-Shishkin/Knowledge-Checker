@@ -1,8 +1,7 @@
 package sda.groupProject.knowledgeChecker.data;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class CategoryTest {
 
@@ -16,37 +15,26 @@ class CategoryTest {
         Category category = new Category(categoryName, categoryId);
 
         // then
-        assertEquals(categoryName, category.categoryName());
-        assertEquals(categoryId, category.categoryId());
+        assertThat(category.categoryName()).isEqualTo(categoryName);
+        assertThat(category.categoryId()).isEqualTo(categoryId);
     }
 
     @Test
-    void categoriesWithSameValuesShouldBeEqual() {
-        // given
-        Category category1 = new Category("Math", 2);
-        Category category2 = new Category("Math", 2);
+    void testEqualsAndHashCode() {
+        Category category1 = new Category("Biology", 1);
+        Category category2 = new Category("Biology", 1);
+        Category category3 = new Category("Physic", 2);
+        Category category4 = new Category("Physic", 3);
 
-        // then
-        assertEquals(category1, category2);
-    }
+        // Test equality using AssertJ assertions
+        assertThat(category1).isEqualTo(category2)
+                .isNotEqualTo(category3);
 
-    @Test
-    void categoriesWithDifferentNamesShouldNotBeEqual() {
-        // given
-        Category category1 = new Category("Biology", 3);
-        Category category2 = new Category("Physics", 3);
+        assertThat(category3).isNotEqualTo(category2)
+                .isNotEqualTo(category4);
 
-        // then
-        assertNotEquals(category1, category2);
-    }
-
-    @Test
-    void categoriesWithDifferentIDsShouldNotBeEqual() {
-        // given
-        Category category1 = new Category("Biology", 3);
-        Category category2 = new Category("Biology", 4);
-
-        // then
-        assertNotEquals(category1, category2);
+        // Test hash code using AssertJ assertions
+        assertThat(category1.hashCode()).isEqualTo(category2.hashCode())
+                .isNotEqualTo(category3.hashCode());
     }
 }
