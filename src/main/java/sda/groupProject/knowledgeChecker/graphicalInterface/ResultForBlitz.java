@@ -15,6 +15,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     private final int quantityOfQuestion;
     private final transient JSONConnector connect;
     private JLabel resultLabel;
+    private JLabel infoLabel;
     private final transient List<GraphicalElementsOfQuestion> listOfPanels;
     private final double score;
     private final double maxScore;
@@ -111,6 +112,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     private void actionIfSeeResultButtonIsClicked() {
         reviewPanel.setVisible(false);
         resultLabel.setVisible(true);
+        infoLabel.setVisible(true);
 
         showQuestionPanel.remove(listOfPanels.get(currentNumber).questionPanel());
         seeTestButton.setText(seeAnswers);
@@ -121,6 +123,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     private void actionIfSeeAnswersButtonIsClicked() {
         reviewPanel.setVisible(true);
         resultLabel.setVisible(false);
+        infoLabel.setVisible(false);
 
         seeTestButton.setText("SEE MY RESULT");
 
@@ -205,17 +208,35 @@ public class ResultForBlitz extends JFrame implements ActionListener {
 
 
         String resultText;
+        String infoText;
         double percent = score / maxScore * 100;
-        resultText = (percent >= 80) ? String.format(("<html>you answered %d questions<br>"
-                        .concat("You scored %3.1f points out of %3.1f<br>or %3.1f percent.<br>")
-                        .concat("This is a great result, congratulations!")),
-                currentNumber , score, maxScore, percent)
-                : String.format(("<html>you answered %d questions<br>"
-                        .concat("You scored %3.1f points out of %3.1f<br>or %3.1f percent.<br>")
-                        .concat("More work could be done :(<br>Good luck on your next try")),
-                currentNumber , score, maxScore, percent);
+        if (percent>=80 && score>=20) {
+            resultText = "Super! You are hired";
+            infoText = String.format(("<html>you answered %d questions<br>")
+                    .concat("You scored %3.1f points out of %3.1f<br>or %3.1f percent.<br>")
+                    .concat("This is a great result, congratulations!"),
+                    currentNumber , score, maxScore, percent);
+        } else if (percent>=0){
+            resultText = "Thank you, we will call you back later ";
+            infoText = String.format(("<html>you answered %d questions<br>")
+                    .concat("You scored %3.1f points out of %3.1f<br>or %3.1f percent.<br>")
+                    .concat("More work could be done :(<br>Good luck on your next try"),
+                    currentNumber , score, maxScore, percent);
+        }
+        else {
+            resultText = "Do you know anything about Java at all?";
+            infoText = String.format(("<html>you answered %d questions<br>")
+                            .concat("You scored %3.1f points out of %3.1f<br>or %3.1f percent.<br>")
+                            .concat("<br>Good luck on your next try"),
+                    currentNumber , score, maxScore, percent);
+        }
+
+
+
         resultLabel = new JLabel(resultText);
-        resultLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 30));
+        resultLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 35));
+        infoLabel = new JLabel(infoText);
+        infoLabel.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 30));
 
 
 
@@ -229,10 +250,14 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         c.gridwidth = 2;
         resultPanel.add(resultLabel, c);
 
+        c.gridx = 0;
+        c.gridy = 1;
+        c.gridwidth = 2;
+        resultPanel.add(infoLabel, c);
 
         c.insets = new Insets(10,10,10,10);
         c.gridx = 0;
-        c.gridy = 1;
+        c.gridy = 2;
         c.gridwidth = 2;
         resultPanel.add(buttonsPanel, c);
     }

@@ -6,22 +6,18 @@ import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 
 public class JSONConnector {
-    private final HttpURLConnection connection;
     private final List<Question> questionArrayList = new ArrayList<>();
     private final Map<String, Integer> categoryMap = new HashMap<>();
 
     public JSONConnector(HttpURLConnection connection) throws IOException {
-        this.connection = connection;
 
         JSONTokener jsonTokener = new JSONTokener(connection.getInputStream());
         JSONArray jsonArray = new JSONArray(jsonTokener);
 
         createAnArrayOfQuestionsFromAJson(jsonArray);
-
     }
 
     protected void createAnArrayOfQuestionsFromAJson(JSONArray jsonArray) {

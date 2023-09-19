@@ -15,8 +15,8 @@ public class BlitzWindow extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
     private final Color MY_GREEN = new Color(0x0BDC00);
     private final int TIME_FOR_TEST_SECONDS = 20;
-    private final int MAX_LENGTH = 60;
-    private final int ANSWER_LENGTH = 50;
+    private final int MAX_LENGTH = 65;
+    private final int ANSWER_LENGTH = 55;
 
     private JPanel buttonsPanel;
     private JSeparator separator1;
@@ -47,7 +47,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
         timer.scheduleAtFixedRate(repeatedTask, 1000,1000);
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
-        this.add(listOfPanels.get(currentNumber).scrollPane());
+        this.add(listOfPanels.get(currentNumber).questionPanel());
 
         this.pack();
         this.setLayout(new GridLayout(1, 1, 10, 10));
@@ -95,8 +95,8 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
                 addNewElementsOfQuestion();
 
-                this.remove(listOfPanels.get(currentNumber - 1).scrollPane());
-                this.add(listOfPanels.get(currentNumber).scrollPane());
+                this.remove(listOfPanels.get(currentNumber - 1).questionPanel());
+                this.add(listOfPanels.get(currentNumber).questionPanel());
                 this.pack();
             }
 
@@ -167,7 +167,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
                             .explanation());
         }
         listOfPanels.get(currentNumber).questionPanel().repaint();
-        listOfPanels.get(currentNumber).scrollPane().repaint();
+        listOfPanels.get(currentNumber).questionPanel().repaint();
     }
 
     private void addExplanationComponentsToQuestionPanelWrongAnswer(double points) {
@@ -247,7 +247,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
                 .get(chosenAnswer)
                 .setForeground(MY_GREEN);
         listOfPanels.get(currentNumber).questionPanel().repaint();
-        listOfPanels.get(currentNumber).scrollPane().repaint();
+        listOfPanels.get(currentNumber).questionPanel().repaint();
     }
 
     private void addExplanationComponentsToQuestionPanelCorrectAnswer(double points) {
@@ -431,20 +431,16 @@ public class BlitzWindow extends JFrame implements ActionListener {
         c.gridheight = 1;
         questionPanel.add(progressBar, c);
 
-        JScrollPane scrollPane = new JScrollPane(questionPanel);
-
-        listOfPanels.add(new GraphicalElementsOfQuestion(question,
+        //we record the panel with the answers in the listOfPanels so that later it can be viewed in the resulting window
+        listOfPanels.add(new GraphicalElementsOfQuestion(
+                question,
                 explanationPanel,
                 answersPanel,
-                codePanel,
                 answerRadioButtons,
-                questionLabel,
                 rightExplanation,
                 chosenExplanation,
-                answersGroupButton,
                 listAnswersForTheQuestion,
-                questionPanel,
-                scrollPane));
+                questionPanel));
     }
 
     private void setButtonsPanel() {
