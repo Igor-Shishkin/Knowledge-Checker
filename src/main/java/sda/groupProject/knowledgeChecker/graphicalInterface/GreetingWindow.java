@@ -88,7 +88,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
                 actionIfQuestionAreLessThenRequired();
 
             } else {
-                new GameWindow.Builder()
+                new UsualGameWindow.Builder()
                         .withChosenCategory(chosenCategory)
                         .withAdvancement(advancement)
                         .withConnect(connect)
@@ -119,45 +119,45 @@ public class GreetingWindow extends JFrame implements ActionListener {
             actionIfBlitzButtonIsPressed();
         }
         if (e.getSource() == aboutTheProjectItem) {
-            String textAboutProject = "<html>Autors:<br>Igor Shishkin<br>Arthur Pososhko<br><br>"
+            String textAboutProject = "<html>Authors:<br>Igor Shishkin<br>Arthur Pososhko<br><br>"
                     .concat("Mentor:<br>Andrzej Chmiel<br><br>Test created by:<br>Andrzej Chmiel");
             JLabel labelAboutProject = new JLabel(textAboutProject);
             labelAboutProject.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 23));
             labelAboutProject.setBorder(BorderFactory.createLineBorder(new Color(0x79ABA9), 3));
             JOptionPane.showMessageDialog(this,
-                    labelAboutProject, "KNOWLEDGE-CHECKER", JOptionPane.PLAIN_MESSAGE);
+                    labelAboutProject, "KNOWLEDGE CHECKER", JOptionPane.PLAIN_MESSAGE);
         }
         if (e.getSource() == testRulesItem) {
-            String textAboutUsualGame = "You can select the category, difficulty level and number of questions. "
-                    .concat("After each answer, you can see the correct option and explanations for the selected ")
-                    .concat("answer and for the correct one.<br>")
+            String textAboutUsualGame = "You can select a category, difficulty level and number of questions. "
+                    .concat("After each answer, you can see the correct option and explanations for both the selected ")
+                    .concat("answer and the correct one.<br>")
                     .concat("To see explanations for other questions, you need to hover your mouse over them.<br>")
                     .concat("After the test, you can see your result and review your test again.");
             JLabel labelUsualGameRules = new JLabel(HTMLConverter.changeTextToHTML(textAboutUsualGame, 60));
             labelUsualGameRules.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 23));
             labelUsualGameRules.setBorder(BorderFactory.createLineBorder(new Color(0x79ABA9), 3));
             JOptionPane.showMessageDialog(this,
-                    labelUsualGameRules, "TEST - RULES", JOptionPane.PLAIN_MESSAGE);
+                    labelUsualGameRules, "TEST RULES", JOptionPane.PLAIN_MESSAGE);
         }
         if (e.getSource() == interviewRulesItem) {
             String textInterviewRules = "<html>You have three minutes<br>to answer as many questions as possible.<br>"
-                    .concat("The questions are in random order,<br>of all categories and levels.<br><br>")
-                    .concat("For the correct answer you will be awarded:<br>")
+                    .concat("The questions appear in a random order,<br> and are taken from all categories and levels.<br><br>")
+                    .concat("For the correct answer, you will be awarded:<br>")
                     .concat("basic level: 1 point<br>")
                     .concat("medium level: 2 points<br>")
                     .concat("expert level: 3 points<br><br>")
-                    .concat("For an incorrect answer the following will be deducted:<br>")
+                    .concat("For an incorrect answer, the following will be deducted:<br>")
                     .concat("basic level: 0.5 point<br>")
                     .concat("medium level: 1 point<br>")
                     .concat("expert level: 1.5 points<br><br>")
-                    .concat("To be hired, you need to score at<br>least 80 percent of the possible score and<br>")
+                    .concat("To be hired, you need to score at<br>least 80 percent of the maximum score and<br>")
                     .concat("at the same time at least 20 points.<br>")
                     .concat("Good luck!</html>");
             JLabel labelInterviewRules = new JLabel(textInterviewRules);
             labelInterviewRules.setFont(MAIN_FONT.deriveFont(Font.PLAIN, 23));
             labelInterviewRules.setBorder(BorderFactory.createLineBorder(new Color(0x79ABA9), 3));
             JOptionPane.showMessageDialog(this,
-                    labelInterviewRules, "INTERVIEW - RULES", JOptionPane.PLAIN_MESSAGE);
+                    labelInterviewRules, "INTERVIEW RULES", JOptionPane.PLAIN_MESSAGE);
         }
     }
 
@@ -178,7 +178,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
                     message, "Warning", JOptionPane.ERROR_MESSAGE);
 
 
-            new GameWindow.Builder()
+            new UsualGameWindow.Builder()
                     .withChosenCategory(chosenCategory)
                     .withAdvancement(advancement)
                     .withConnect(connect)
@@ -188,7 +188,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
 
             dispose();
         } else {
-            String message = "There aren't questions for\nthe parameter you have chosen.";
+            String message = "There aren't any questions for\nthe parameter you have chosen.";
             JOptionPane.showMessageDialog(this,
                     message, "Warning", JOptionPane.ERROR_MESSAGE);
         }
@@ -280,7 +280,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
 
         greetingLabel = new JLabel
                 ("<html>Greeting!<br>Are you ready to check your knowledge?"
-                        .concat("<br>Choose level, category and how many questions<br>would you like</html>"));
+                        .concat("<br>Choose the level, category and number of questions</html>"));
         greetingLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
         greetingPanel = new JPanel(new GridBagLayout());
@@ -380,7 +380,7 @@ public class GreetingWindow extends JFrame implements ActionListener {
         levelGroupButton.add(levelExpertRadioButton);
 
         levelPanel = new JPanel(new GridLayout(1, 3, 5, 5));
-        levelPanel.setBorder(BorderFactory.createTitledBorder("Choose level"));
+        levelPanel.setBorder(BorderFactory.createTitledBorder("Choose the level"));
         levelPanel.add(levelBasicRadioButton);
         levelPanel.add(levelMediumRadioButton);
         levelPanel.add(levelExpertRadioButton);

@@ -7,9 +7,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.List;
 
-public class ResultWindow extends JFrame implements ActionListener {
+public class UsualGameResultWindow extends JFrame implements ActionListener {
 
 
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
@@ -38,8 +39,8 @@ public class ResultWindow extends JFrame implements ActionListener {
 
 
 
-    private ResultWindow(JSONConnector connect, int score, int quantityQuestions, Advancement advancement,
-                        String[] listOfCategory, List<GraphicalElementsOfQuestion> listOfPanels) {
+    private UsualGameResultWindow(JSONConnector connect, int score, int quantityQuestions, Advancement advancement,
+                                  String[] listOfCategory, List<GraphicalElementsOfQuestion> listOfPanels) {
         this.connect = connect;
         this.score = score;
         this.quantityOfQuestion = quantityQuestions;
@@ -91,7 +92,7 @@ public class ResultWindow extends JFrame implements ActionListener {
 
     private void setProgressBar() {
         progressBar = new JProgressBar(0, currentNumber);
-        progressBar.setValue(currentNumber+2);
+        progressBar.setValue(quantityOfQuestion);
         progressBar.setStringPainted(true);
         progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
         progressBar.setForeground(Color.red);
@@ -99,8 +100,10 @@ public class ResultWindow extends JFrame implements ActionListener {
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
     }
     private void setReviewPanel() {
-        ImageIcon forwardIcon = new ImageIcon("src/main/resources/next.png");
-        ImageIcon backIcon = new ImageIcon("src/main/resources/previous.png");
+        URL urlForNextImage = ClassLoader.getSystemResource("next.png");
+        URL urlForBackImage = ClassLoader.getSystemResource("previous.png");
+        ImageIcon forwardIcon = new ImageIcon(urlForNextImage);
+        ImageIcon backIcon = new ImageIcon(urlForBackImage);
         forwardButton = new JButton(forwardIcon);
         forwardButton.addActionListener(this);
         backButton = new JButton(backIcon);
@@ -144,7 +147,7 @@ public class ResultWindow extends JFrame implements ActionListener {
         backButton.setEnabled(currentNumber>0);
         forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-        progressBar.setValue(currentNumber+1);
+        progressBar.setValue(currentNumber);
         this.pack();
     }
 
@@ -155,7 +158,7 @@ public class ResultWindow extends JFrame implements ActionListener {
         backButton.setEnabled(currentNumber>0);
         forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-        progressBar.setValue(currentNumber+1);
+        progressBar.setValue(currentNumber);
         this.pack();
     }
 
@@ -291,8 +294,8 @@ public class ResultWindow extends JFrame implements ActionListener {
             this.listOfPanels = listOfPanels;
             return this;
         }
-        public ResultWindow build() {
-            return new ResultWindow(connect, score, quantityQuestions, advancement, listOfCategory, listOfPanels);
+        public UsualGameResultWindow build() {
+            return new UsualGameResultWindow(connect, score, quantityQuestions, advancement, listOfCategory, listOfPanels);
         }
     }
 }

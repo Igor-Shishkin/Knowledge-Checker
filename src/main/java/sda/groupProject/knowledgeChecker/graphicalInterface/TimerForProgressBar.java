@@ -1,27 +1,19 @@
 package sda.groupProject.knowledgeChecker.graphicalInterface;
 
-import sda.groupProject.knowledgeChecker.data.JSONConnector;
-
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
 import java.util.TimerTask;
 
 public class TimerForProgressBar extends TimerTask {
-    JProgressBar progressBar;
-    JSONConnector connect;
-    List<GraphicalElementsOfQuestion> el;
-    double score, maxScore;
-    int currentNumber;
-    JButton nextButton;
+    private JProgressBar progressBar;
+    private JButton nextButton;
+    private final JFrame frame;
 
 
-    public TimerForProgressBar(JProgressBar progressBar, List<GraphicalElementsOfQuestion> el, JButton nextButton,
-                               int currentNumber) {
+    public TimerForProgressBar(JProgressBar progressBar, JButton nextButton, JFrame frame) {
         this.progressBar = progressBar;
-        this.el = el;
         this.nextButton = nextButton;
-        this.currentNumber = currentNumber;
+        this.frame = frame;
     }
 
     @Override
@@ -33,13 +25,11 @@ public class TimerForProgressBar extends TimerTask {
                 : String.format("%d seconds left", progressBar.getValue()%60);
         progressBar.setString(progress);
         if (progressBar.getValue() == 0) {
-            for (JRadioButton rb : el.get(currentNumber).answerRadioButtons()) {
-                rb.setEnabled(false);
-            }
             nextButton.setEnabled(true);
             nextButton.setText("<html>TIME IS<br>OVER</html>");
             nextButton.setFont(new Font(null, Font.BOLD, 15));
             nextButton.setBackground(Color.BLACK);
+            frame.pack();
             this.cancel();
         }
     }

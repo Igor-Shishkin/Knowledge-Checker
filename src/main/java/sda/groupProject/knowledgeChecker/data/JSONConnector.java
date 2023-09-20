@@ -6,23 +6,23 @@ import org.json.JSONTokener;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.*;
 
 public class JSONConnector {
-   private final List<Question> questionArrayList = new ArrayList<>();
-   private final Map<String, Integer> categoryMap;
+    private final List<Question> questionArrayList = new ArrayList<>();
+    private final Map<String, Integer> categoryMap = new HashMap<>();
 
-    public JSONConnector() throws IOException {
-        URL questionsJsonURL = new URL("https://public.andret.eu/questions.json");
-        HttpURLConnection connection = (HttpURLConnection) questionsJsonURL.openConnection();
+    public JSONConnector(HttpURLConnection connection) throws IOException {
 
         JSONTokener jsonTokener = new JSONTokener(connection.getInputStream());
         JSONArray jsonArray = new JSONArray(jsonTokener);
 
+        createAnArrayOfQuestionsFromAJson(jsonArray);
+    }
+
+    protected void createAnArrayOfQuestionsFromAJson(JSONArray jsonArray) {
         // for iterating through JSONArray to assign ID's to each unique category value.
         int idForCategory = 1;
-        categoryMap = new HashMap<>();
 
         // Iterating through JSONArray again to ...
         for (int i = 0; i < jsonArray.length(); i++) {

@@ -11,6 +11,7 @@ public class HTMLConverter {
 
         StringBuilder result = new StringBuilder("<html>");
         int startIndex = 0;
+        boolean newLine = false;
 
         while (startIndex < text.length()) {
             int endIndex = Math.min(startIndex + lineLength, text.length());
@@ -18,6 +19,9 @@ public class HTMLConverter {
 
             if (endIndex < text.length()) {
                 int lastSpaceIndex = chunk.lastIndexOf(' ');
+                if (chunk.contains("\n")) {
+                    lastSpaceIndex = chunk.indexOf("\n");
+                }
 
                 if (lastSpaceIndex != -1) {
                     endIndex = startIndex + lastSpaceIndex;

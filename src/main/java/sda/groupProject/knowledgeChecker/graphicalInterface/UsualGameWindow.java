@@ -9,7 +9,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameWindow extends JFrame implements ActionListener {
+public class UsualGameWindow extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
     private final Color DARK_GREEN = new Color(0x066C00);
     private final int MAX_NUMBER_OF_QUESTION;
@@ -32,8 +32,8 @@ public class GameWindow extends JFrame implements ActionListener {
     private final List<GraphicalElementsOfQuestion> listOfPanels = new ArrayList<>();
 
 
-    private GameWindow(String[] chosenCategory, Advancement advancement, int quantityQuestions, JSONConnector connect,
-               List<Question> listOfQuestions) {
+    private UsualGameWindow(String[] chosenCategory, Advancement advancement, int quantityQuestions, JSONConnector connect,
+                            List<Question> listOfQuestions) {
         this.connect = connect;
         this.chosenCategory = chosenCategory;
         this.advancement = advancement;
@@ -46,7 +46,7 @@ public class GameWindow extends JFrame implements ActionListener {
         addNewElementsOfQuestionToEL();
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
-        this.add(listOfPanels.get(currentNumber).scrollPane());
+        this.add(listOfPanels.get(currentNumber).questionPanel());
 
         this.pack();
         this.setLayout(new GridLayout(1, 1, 10, 10));
@@ -92,8 +92,8 @@ public class GameWindow extends JFrame implements ActionListener {
 
         addNewElementsOfQuestionToEL();
 
-        this.remove(listOfPanels.get(currentNumber - 1).scrollPane());
-        this.add(listOfPanels.get(currentNumber).scrollPane());
+        this.remove(listOfPanels.get(currentNumber - 1).questionPanel());
+        this.add(listOfPanels.get(currentNumber).questionPanel());
         this.pack();
     }
 
@@ -101,7 +101,7 @@ public class GameWindow extends JFrame implements ActionListener {
         nextButton.setVisible(false);
         listOfPanels.get(currentNumber-1)
                 .questionPanel().remove(progressBar);
-        new ResultWindow.Builder()
+        new UsualGameResultWindow.Builder()
                 .withAdvancement(advancement)
                 .withConnect(connect)
                 .withScore(score)
@@ -308,21 +308,16 @@ public class GameWindow extends JFrame implements ActionListener {
         c.gridheight = 1;
         questionPanel.add(progressBar, c);
 
-        JScrollPane scrollPane = new JScrollPane(questionPanel);
-
-        listOfPanels.add(new GraphicalElementsOfQuestion(question,
+        //we record the panel with the answers in the listOfPanels so that later it can be viewed in the resulting window
+        listOfPanels.add(new GraphicalElementsOfQuestion(
+                question,
                 explanationPanel,
                 answersPanel,
-                codePanel,
                 answerRadioButtons,
-                questionLabel,
                 rightExplanation,
                 chosenExplanation,
-                answersGroupButton,
                 listAnswersForTheQuestion,
-                questionPanel,
-                scrollPane));
-
+                questionPanel));
     }
 
     private void setButtonsPanel() {
@@ -392,8 +387,8 @@ public class GameWindow extends JFrame implements ActionListener {
             this.listOfQuestions = listOfQuestions;
             return this;
         }
-        public GameWindow build() {
-            return new GameWindow(chosenCategory, advancement, quantityQuestions, connect, listOfQuestions);
+        public UsualGameWindow build() {
+            return new UsualGameWindow(chosenCategory, advancement, quantityQuestions, connect, listOfQuestions);
         }
     }
 }

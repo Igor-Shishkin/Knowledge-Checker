@@ -1,86 +1,62 @@
 package sda.groupProject.knowledgeChecker.data;
 
+import org.assertj.core.api.Assertions;
+import org.json.JSONArray;
+import org.json.JSONTokener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class JSONConnectorTest {
-    private JSONConnector jsonConnector;
-
-    @BeforeEach
-    void setUp() {
-        try {
-            jsonConnector = new JSONConnector(); // This will test the constructor
-        } catch (IOException e) {
-            fail("Failed to create JSONConnector");
-        }
-    }
-
-//    @Test
-//    void testCategoryMapNotEmpty() {
-//        assertNotNull(jsonConnector.categoryMap);
-//        assertFalse(jsonConnector.categoryMap.isEmpty());
-//    }
-
-//    @Test
-//    void testQuestionArrayListNotEmpty() {
-//        assertNotNull(jsonConnector.questionArrayList);
-//        assertFalse(jsonConnector.questionArrayList.isEmpty());
-//    }
-
-//    @Test
-//    void testQuestionArrayListContainsQuestions() {
-//        List<Question> questionArrayList = jsonConnector.questionArrayList;
-//        assertNotNull(questionArrayList);
-//
-//        assertFalse(questionArrayList.isEmpty());
-//    }
 
     @Test
-    void testListOfQuestionsNotEmpty() {
-        assertNotNull(jsonConnector.getListOfQuestions());
-        assertFalse(jsonConnector.getListOfQuestions().isEmpty());
-    }
+    void testJsonParsing() throws Exception {
 
-    @Test
-    void testGetCategoryNamesNotEmpty() {
-        assertNotNull(jsonConnector.getCategoryNames());
-        assertTrue(jsonConnector.getCategoryNames().length > 0);
-    }
+        String json = "[{\"id\": 1, \"advancement\": \"medium\", \"category\": \"General\", \"text\": \"What is computer?\","
+                .concat(" \"answers\": [{\"text\": \"machine\", \"correct\": \"true\", \"explanation\": \"because\"}]},")
+                .concat("{\"id\": 2, \"advancement\": \"basic\", \"category\": \"Java\", \"text\": \"What's JAVA?\",")
+                .concat(" \"answers\": [{\"text\": \"language\", \"correct\": \"true\", \"explanation\": \"because\"}]}]");
 
-//    @Test
-//    void testListOfQuestionsIsRandomAndFiltered() {
-//        Advancement level = Advancement.BASIC;
-//        String[] categoryNames = jsonConnector.getCategoryNames();
-//        int numberOfQuestions = 5;
-//
-//        ArrayList<Question> filteredAndShuffledQuestions = jsonConnector.getListOfQuestions(level, categoryNames, numberOfQuestions);
-//
-//        assertNotNull(filteredAndShuffledQuestions);
-//        assertEquals(numberOfQuestions, filteredAndShuffledQuestions.size());
-//
-//        List<String> categoryNamesList = Arrays.asList(categoryNames);
-//
-//        // Check if questions are of the specified level and category
-//        for (Question question : filteredAndShuffledQuestions) {
-//            assertEquals(level, question.advancement());
-//            assertTrue(categoryNamesList.contains(question.category().categoryName()));
-//        }
-//
-//        // Check if questions are shuffled (not in the original order)
-//        boolean isShuffled = false;
-//        for (int i = 1; i < filteredAndShuffledQuestions.size(); i++) {
-//            if (!filteredAndShuffledQuestions.get(i).equals(filteredAndShuffledQuestions.get(i - 1))) {
-//                isShuffled = true;
-//                break;
-//            }
-//        }
-//        assertTrue(isShuffled);
-//    }
+        // Mock HttpURLConnection to return a custom JSON string
+        HttpURLConnection mockedConnection = Mockito.mock(HttpURLConnection.class);
+
+        InputStream inputStream = new ByteArrayInputStream(json.getBytes());
+        Mockito.when(mockedConnection.getInputStream()).thenReturn(inputStream);
+
+        URL mockedUrl = Mockito.mock(URL.class);
+        Mockito.when(mockedUrl.openConnection()).thenReturn(mockedConnection);
+        JSONConnector connect = new JSONConnector(mockedConnection);
+
+        List<Question> testList = connect.getListOfQuestions();
+
+        List<String> expectedListOfCategories = new ArrayList<>(List.of("General", "Java"));
+
+        Question questionOne = new Question(1,
+                Advancement.MEDIUM,
+                new Category("General", 1),
+                "What is computer?",
+                null,
+                List.of(new Answer("machine", true, "because")));
+        Question questionTwo = new Question(2,
+                Advancement.BASIC,
+                new Category("Java", 2),
+                "What's JAVA?",
+                null,
+                List.of(new Answer("language", true, "because")));
+        List<Question> expectedListOfQuestion = new ArrayList<>(List.of(questionOne, questionTwo));
+
+        assertThat(testList)
+                .isNotNull()
+                .hasSize(2)
+                .isEqualTo(expectedListOfQuestion);
+        assertThat(connect.getCategoryNames()).containsAnyElementsOf(expectedListOfCategories);
+    }
 }
