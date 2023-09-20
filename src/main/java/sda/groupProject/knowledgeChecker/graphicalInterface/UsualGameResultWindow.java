@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.List;
 
 public class UsualGameResultWindow extends JFrame implements ActionListener {
@@ -99,8 +100,10 @@ public class UsualGameResultWindow extends JFrame implements ActionListener {
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
     }
     private void setReviewPanel() {
-        ImageIcon forwardIcon = new ImageIcon("src/main/resources/next.png");
-        ImageIcon backIcon = new ImageIcon("src/main/resources/previous.png");
+        URL urlForNextImage = ClassLoader.getSystemResource("next.png");
+        URL urlForBackImage = ClassLoader.getSystemResource("previous.png");
+        ImageIcon forwardIcon = new ImageIcon(urlForNextImage);
+        ImageIcon backIcon = new ImageIcon(urlForBackImage);
         forwardButton = new JButton(forwardIcon);
         forwardButton.addActionListener(this);
         backButton = new JButton(backIcon);

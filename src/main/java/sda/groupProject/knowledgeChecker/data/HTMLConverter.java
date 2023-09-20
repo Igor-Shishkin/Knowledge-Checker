@@ -19,9 +19,8 @@ public class HTMLConverter {
 
             if (endIndex < text.length()) {
                 int lastSpaceIndex = chunk.lastIndexOf(' ');
-                if (chunk.contains("\\n")) {
-                    lastSpaceIndex = chunk.indexOf("\\n");
-                    newLine = true;
+                if (chunk.contains("\n")) {
+                    lastSpaceIndex = chunk.indexOf("\n");
                 }
 
                 if (lastSpaceIndex != -1) {
@@ -31,8 +30,7 @@ public class HTMLConverter {
             }
 
             result.append(chunk).append("<br>");
-            startIndex = (newLine) ? endIndex + 2 :  endIndex + 1;
-            newLine = false;
+            startIndex = endIndex + 1;
         }
 
         result.append("</html>");

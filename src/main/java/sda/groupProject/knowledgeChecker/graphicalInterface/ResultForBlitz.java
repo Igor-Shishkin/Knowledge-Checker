@@ -7,7 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 
 public class ResultForBlitz extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
@@ -94,7 +96,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         backButton.setEnabled(currentNumber>0);
         forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-        progressBar.setValue(currentNumber+1);
+        progressBar.setValue(currentNumber);
         this.pack();
     }
 
@@ -105,7 +107,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         backButton.setEnabled(currentNumber>0);
         forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-        progressBar.setValue(currentNumber+1);
+        progressBar.setValue(currentNumber);
         this.pack();
     }
 
@@ -138,7 +140,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
 
     private void setProgressBar() {
         progressBar = new JProgressBar(0, currentNumber);
-        progressBar.setValue(currentNumber+1);
+        progressBar.setValue(quantityOfQuestion);
         progressBar.setStringPainted(true);
         progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
         progressBar.setForeground(Color.red);
@@ -147,8 +149,10 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     }
 
     private void setReviewPanel() {
-        ImageIcon forwardIcon = new ImageIcon("src/main/resources/next.png");
-        ImageIcon backIcon = new ImageIcon("src/main/resources/previous.png");
+        URL urlForNextImage = ClassLoader.getSystemResource("next.png");
+        URL urlForBackImage = ClassLoader.getSystemResource("previous.png");
+        ImageIcon forwardIcon = new ImageIcon(urlForNextImage);
+        ImageIcon backIcon = new ImageIcon(urlForBackImage);
         forwardButton = new JButton(forwardIcon);
         forwardButton.addActionListener(this);
         backButton = new JButton(backIcon);
@@ -211,13 +215,13 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         String infoText;
         double percent = score / maxScore * 100;
         if (percent>=80 && score>=20) {
-            resultText = "Super! You are hired";
+            resultText = "Excellent! You've been hired";
             infoText = String.format(("<html>you answered %d questions<br>")
                     .concat("You scored %3.1f points out of %3.1f<br>or %3.1f percent.<br>")
                     .concat("This is a great result, congratulations!"),
                     currentNumber , score, maxScore, percent);
         } else if (percent>=0){
-            resultText = "Thank you, we will call you back later ";
+            resultText = "Thank you, we'll call you back later ";
             infoText = String.format(("<html>you answered %d questions<br>")
                     .concat("You scored %3.1f points out of %3.1f<br>or %3.1f percent.<br>")
                     .concat("More work could be done :(<br>Good luck on your next try"),
@@ -227,7 +231,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
             resultText = "Do you know anything about Java at all?";
             infoText = String.format(("<html>you answered %d questions<br>")
                             .concat("You scored %3.1f points out of %3.1f<br>or %3.1f percent.<br>")
-                            .concat("<br>Good luck on your next try"),
+                            .concat("<br>Good luck in your next try"),
                     currentNumber , score, maxScore, percent);
         }
 

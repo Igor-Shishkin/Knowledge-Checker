@@ -43,7 +43,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
         addNewElementsOfQuestion();
 
         Timer timer = new Timer();
-        TimerTask repeatedTask = new TimerForProgressBar(progressBar, listOfPanels, nextButton, currentNumber);
+        TimerTask repeatedTask = new TimerForProgressBar(progressBar, nextButton, this);
         timer.scheduleAtFixedRate(repeatedTask, 1000,1000);
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
@@ -409,7 +409,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
         c.gridx = 9;
         c.gridy = 2;
         c.gridwidth = 1;
-        c.gridheight = listAnswersForTheQuestion.size()-1;
+        c.gridheight = listAnswersForTheQuestion.size();
         questionPanel.add(buttonsPanel, c);
 
         c.insets = new Insets(3, 5, 3, 5);
