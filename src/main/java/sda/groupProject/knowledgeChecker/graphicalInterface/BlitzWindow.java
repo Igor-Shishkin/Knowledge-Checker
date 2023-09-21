@@ -14,7 +14,7 @@ import java.util.TimerTask;
 public class BlitzWindow extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
     private final Color MY_GREEN = new Color(0x0BDC00);
-    private final int TIME_FOR_TEST_SECONDS = 20;
+    private final int TIME_FOR_TEST_SECONDS = 180;
     private final int MAX_LENGTH = 65;
     private final int ANSWER_LENGTH = 55;
 
