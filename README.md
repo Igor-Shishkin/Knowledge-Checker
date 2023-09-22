@@ -1,6 +1,6 @@
 # Java Knowledge Checker
 
-This app enables you to prepare for the SDA final exam by taking tests related to the course topics. It has been created as a part of the SDA course curriculum.
+This program can prepare you for a job interview by means of tests related to JAVA topics. It was created as a part of the SDA course curriculum.
 
 Usual game:
 You can select a category, difficulty level and number of questions. After each answer, you can see the correct option and explanations for both the selected answer and the correct one. To see explanations for other questions, you need to hover your mouse over them. After the test, you can see your result and review your test again.
