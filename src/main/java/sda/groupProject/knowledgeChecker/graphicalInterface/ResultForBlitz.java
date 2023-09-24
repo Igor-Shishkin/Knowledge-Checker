@@ -1,6 +1,5 @@
 package sda.groupProject.knowledgeChecker.graphicalInterface;
 
-import sda.groupProject.knowledgeChecker.data.Advancement;
 import sda.groupProject.knowledgeChecker.data.JSONConnector;
 
 import javax.swing.*;
@@ -9,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.List;
-import java.util.Objects;
 
 public class ResultForBlitz extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
@@ -36,15 +34,14 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     private final String textForProgressBar = "question %d out of %d";
 
 
-    private ResultForBlitz(JSONConnector connect, List<GraphicalElementsOfQuestion> el, double score, int currentNumber,
-                          double maxScore) {
+    private ResultForBlitz(JSONConnector connect, List<GraphicalElementsOfQuestion> el, double score, double maxScore) {
         this.connect = connect;
         this.listOfPanels = el;
         this.score = score;
-        this.currentNumber = currentNumber;
         this.maxScore = maxScore;
 
-        quantityOfQuestion = currentNumber + 1;
+        quantityOfQuestion = listOfPanels.size();
+        currentNumber = quantityOfQuestion-1;
 
         setResultPanel();
         setProgressBar();
@@ -96,7 +93,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         backButton.setEnabled(currentNumber>0);
         forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-        progressBar.setValue(currentNumber);
+        progressBar.setValue(currentNumber+1);
         this.pack();
     }
 
@@ -107,7 +104,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
         backButton.setEnabled(currentNumber>0);
         forwardButton.setEnabled(currentNumber< listOfPanels.size()-1);
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-        progressBar.setValue(currentNumber);
+        progressBar.setValue(currentNumber+1);
         this.pack();
     }
 
@@ -139,7 +136,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
 
 
     private void setProgressBar() {
-        progressBar = new JProgressBar(0, currentNumber);
+        progressBar = new JProgressBar(0, quantityOfQuestion);
         progressBar.setValue(quantityOfQuestion);
         progressBar.setStringPainted(true);
         progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
@@ -269,21 +266,11 @@ public class ResultForBlitz extends JFrame implements ActionListener {
     public static class Builder {
         private JSONConnector connect;
         private double score;
-        private int currentNumber;
         private double maxScore;
-        private String[] listOfCategory;
         private List<GraphicalElementsOfQuestion> listOfPanels;
 
         public Builder withConnect (JSONConnector connect){
             this.connect = connect;
-            return this;
-        }
-        public Builder withScore (int score){
-            this.score = score;
-            return this;
-        }
-        public Builder withCurrentNumber (int currentNumber){
-            this.currentNumber = currentNumber;
             return this;
         }
         public Builder withScore (double score){
@@ -299,7 +286,7 @@ public class ResultForBlitz extends JFrame implements ActionListener {
             return this;
         }
         public ResultForBlitz build() {
-            return new ResultForBlitz(connect, listOfPanels, score, currentNumber, maxScore);
+            return new ResultForBlitz(connect, listOfPanels, score, maxScore);
         }
 
     }

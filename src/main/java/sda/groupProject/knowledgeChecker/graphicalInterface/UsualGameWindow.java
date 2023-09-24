@@ -309,15 +309,16 @@ public class UsualGameWindow extends JFrame implements ActionListener {
         questionPanel.add(progressBar, c);
 
         //we record the panel with the answers in the listOfPanels so that later it can be viewed in the resulting window
-        listOfPanels.add(new GraphicalElementsOfQuestion(
-                question,
-                explanationPanel,
-                answersPanel,
-                answerRadioButtons,
-                rightExplanation,
-                chosenExplanation,
-                listAnswersForTheQuestion,
-                questionPanel));
+        listOfPanels.add(new GraphicalElementsOfQuestion.Builder()
+                .withExplanationPanel(explanationPanel)
+                .withListAnswersForTheQuestion(listAnswersForTheQuestion)
+                .withQuestionPanel(questionPanel)
+                .withAnswersPanel(answersPanel)
+                .withQuestion(question)
+                .withAnswerRadioButtons(answerRadioButtons)
+                .withChosenExplanation(chosenExplanation)
+                .withRightExplanation(rightExplanation)
+                .build());
     }
 
     private void setButtonsPanel() {
