@@ -18,14 +18,11 @@ public class BlitzWindow extends JFrame implements ActionListener {
     private final int MAX_LENGTH = 65;
     private final int ANSWER_LENGTH = 55;
 
-    private JPanel buttonsPanel;
-    private JSeparator separator1;
     private JButton nextButton;
     private double score;
     private double maxScore;
     private int currentNumber = 0;
     private int chosenAnswer;
-    private final transient JSONConnector connect;
     private final transient List<Question> listOfQuestions;
     private final GridBagConstraints c = new GridBagConstraints();
     private JProgressBar progressBar;
@@ -33,8 +30,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
     private final List<GraphicalElementsOfQuestion> listOfPanels = new ArrayList<>();
 
 
-    BlitzWindow(JSONConnector connect,  List<Question> listOfQuestions) {
-        this.connect = connect;
+    BlitzWindow(JSONConnector connect, List<Question> listOfQuestions) {
         this.listOfQuestions = listOfQuestions;
 
         setButtonsPanel();
@@ -43,8 +39,32 @@ public class BlitzWindow extends JFrame implements ActionListener {
         addNewElementsOfQuestion();
 
         Timer timer = new Timer();
-        TimerTask repeatedTask = new TimerForProgressBar(progressBar, nextButton, this);
-        timer.scheduleAtFixedRate(repeatedTask, 1000,1000);
+        timer.scheduleAtFixedRate(new TimerTask() {
+                                      @Override
+                                      public void run() {
+                                          progressBar.setValue(progressBar.getValue() - 1);
+
+                                          String progress = (progressBar.getValue() > 60)
+                                                  ? String.format("%d minutes and %d seconds left", progressBar.getValue() / 60, progressBar.getValue() % 60)
+                                                  : String.format("%d seconds left", progressBar.getValue() % 60);
+                                          progressBar.setString(progress);
+                                          if (progressBar.getValue() == 0) {
+                                              listOfPanels.get(currentNumber).questionPanel().remove(progressBar);
+                                              nextButton.setVisible(false);
+
+                                              new ResultForBlitz.Builder()
+                                                      .withScore(score)
+                                                      .withConnect(connect)
+                                                      .withListOfPanels(listOfPanels)
+                                                      .withMaxScore(maxScore)
+                                                      .build();
+
+                                              dispose();
+                                              this.cancel();
+                                          }
+                                      }
+                                  }
+                , 1000, 1000);
 
         this.setLayout(new GridLayout(1, 1, 5, 5));
         this.add(listOfPanels.get(currentNumber).questionPanel());
@@ -64,42 +84,24 @@ public class BlitzWindow extends JFrame implements ActionListener {
 
         if (e.getSource() == nextButton) {
 
-            if (nextButton.getText().equals("<html>TIME IS<br>OVER</html>")) {
-                listOfPanels.get(currentNumber).questionPanel().remove(progressBar);
+            nextButton.setEnabled(false);
 
-                new ResultForBlitz.Builder()
-                        .withScore(score)
-                        .withCurrentNumber(currentNumber)
-                        .withConnect(connect)
-                        .withListOfPanels(listOfPanels)
-                        .withMaxScore(maxScore)
-                        .build();
+            maxScore = maxScore + getPointForCorrectAnswer();
 
-                nextButton.setVisible(false);
-                dispose();
-
+            if (listOfPanels.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
+                actionIfAnswerIsCorrect();
             } else {
-
-                nextButton.setEnabled(false);
-
-                maxScore = maxScore + getPointForCorrectAnswer();
-
-                if (listOfPanels.get(currentNumber).listAnswersForTheQuestion().get(chosenAnswer).correct()) {
-                    actionIfAnswerIsCorrect();
-                } else {
-                    actionsIfAnswerIsNotCorrect();
-                }
-
-                listOfPanels.get(currentNumber - 1).questionPanel().remove(buttonsPanel);
-                listOfPanels.get(currentNumber - 1).questionPanel().remove(progressBar);
-
-                addNewElementsOfQuestion();
-
-                this.remove(listOfPanels.get(currentNumber - 1).questionPanel());
-                this.add(listOfPanels.get(currentNumber).questionPanel());
-                this.pack();
+                actionsIfAnswerIsNotCorrect();
             }
 
+            listOfPanels.get(currentNumber - 1).questionPanel().remove(nextButton);
+            listOfPanels.get(currentNumber - 1).questionPanel().remove(progressBar);
+
+            addNewElementsOfQuestion();
+
+            this.remove(listOfPanels.get(currentNumber - 1).questionPanel());
+            this.add(listOfPanels.get(currentNumber).questionPanel());
+            this.pack();
         }
     }
 
@@ -120,7 +122,6 @@ public class BlitzWindow extends JFrame implements ActionListener {
                 .answerRadioButtons()
                 .get(chosenAnswer)
                 .setForeground(Color.RED);
-        separator1.setVisible(true);
 
         for (Answer answer : listOfPanels.get(currentNumber).listAnswersForTheQuestion()) {
             if (answer.correct()) {
@@ -135,7 +136,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
                                 .get(currentNumber)
                                 .listAnswersForTheQuestion()
                                 .indexOf(answer))
-                                    .setForeground(MY_GREEN);
+                        .setForeground(MY_GREEN);
             }
         }
         listOfPanels.get(currentNumber).answerRadioButtons()
@@ -147,11 +148,11 @@ public class BlitzWindow extends JFrame implements ActionListener {
         listOfPanels.get(currentNumber)
                 .chosenExplanation()
                 .setText(HTMLConverter.changeTextToHTML
-                (listOfPanels.get(currentNumber)
-                        .listAnswersForTheQuestion()
-                        .get(chosenAnswer)
-                        .explanation()
-                            , MAX_LENGTH));
+                        (listOfPanels.get(currentNumber)
+                                        .listAnswersForTheQuestion()
+                                        .get(chosenAnswer)
+                                        .explanation()
+                                , MAX_LENGTH));
         listOfPanels.get(currentNumber)
                 .explanationPanel()
                 .setVisible(true);
@@ -221,12 +222,11 @@ public class BlitzWindow extends JFrame implements ActionListener {
                 .rightExplanation()
                 .setText(HTMLConverter
                         .changeTextToHTML(listOfPanels.get(currentNumber)
-                                .listAnswersForTheQuestion()
-                                .get(chosenAnswer)
-                                .explanation()
-                                    , MAX_LENGTH));
+                                        .listAnswersForTheQuestion()
+                                        .get(chosenAnswer)
+                                        .explanation()
+                                , MAX_LENGTH));
         listOfPanels.get(currentNumber).explanationPanel().setVisible(true);
-        separator1.setVisible(true);
 
         for (int i = 0; i < listOfPanels
                 .get(currentNumber)
@@ -376,12 +376,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
         questionLabel.setHorizontalAlignment(SwingConstants.CENTER);
         questionLabel.setFont(MAIN_FONT.deriveFont(Font.BOLD, 20));
 
-
-
         JPanel questionPanel = new JPanel(new GridBagLayout());
-
-        separator1 = new JSeparator();
-        separator1.setVisible(false);
 
         c.insets = new Insets(10, 5, 10, 5);
         c.fill = GridBagConstraints.BOTH;
@@ -410,14 +405,7 @@ public class BlitzWindow extends JFrame implements ActionListener {
         c.gridy = 2;
         c.gridwidth = 1;
         c.gridheight = listAnswersForTheQuestion.size();
-        questionPanel.add(buttonsPanel, c);
-
-        c.insets = new Insets(3, 5, 3, 5);
-        c.gridx = 0;
-        c.gridy = listAnswersForTheQuestion.size() + 3;
-        c.gridheight = 1;
-        c.gridwidth = 10;
-        questionPanel.add(separator1, c);
+        questionPanel.add(nextButton, c);
 
         c.insets = new Insets(3, 5, 3, 5);
         c.gridx = 0;
@@ -432,15 +420,16 @@ public class BlitzWindow extends JFrame implements ActionListener {
         questionPanel.add(progressBar, c);
 
         //we record the panel with the answers in the listOfPanels so that later it can be viewed in the resulting window
-        listOfPanels.add(new GraphicalElementsOfQuestion(
-                question,
-                explanationPanel,
-                answersPanel,
-                answerRadioButtons,
-                rightExplanation,
-                chosenExplanation,
-                listAnswersForTheQuestion,
-                questionPanel));
+        listOfPanels.add(new GraphicalElementsOfQuestion.Builder()
+                .withExplanationPanel(explanationPanel)
+                .withListAnswersForTheQuestion(listAnswersForTheQuestion)
+                .withQuestionPanel(questionPanel)
+                .withAnswersPanel(answersPanel)
+                .withQuestion(question)
+                .withAnswerRadioButtons(answerRadioButtons)
+                .withChosenExplanation(chosenExplanation)
+                .withRightExplanation(rightExplanation)
+                .build());
     }
 
     private void setButtonsPanel() {
@@ -452,8 +441,6 @@ public class BlitzWindow extends JFrame implements ActionListener {
         nextButton.addActionListener(this);
         nextButton.setEnabled(false);
 
-        buttonsPanel = new JPanel(new GridLayout(1, 1, 10, 10));
-        buttonsPanel.add(nextButton);
     }
 
     private void setFontForComponents(Container container) {

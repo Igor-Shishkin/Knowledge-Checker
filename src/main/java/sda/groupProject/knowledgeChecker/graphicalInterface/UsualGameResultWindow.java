@@ -91,7 +91,7 @@ public class UsualGameResultWindow extends JFrame implements ActionListener {
     }
 
     private void setProgressBar() {
-        progressBar = new JProgressBar(0, currentNumber);
+        progressBar = new JProgressBar(0, quantityOfQuestion);
         progressBar.setValue(quantityOfQuestion);
         progressBar.setStringPainted(true);
         progressBar.setFont(new Font("MV Boli", Font.BOLD, 25));
@@ -147,7 +147,7 @@ public class UsualGameResultWindow extends JFrame implements ActionListener {
         backButton.setEnabled(currentNumber>0);
         forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-        progressBar.setValue(currentNumber);
+        progressBar.setValue(currentNumber+1);
         this.pack();
     }
 
@@ -158,7 +158,7 @@ public class UsualGameResultWindow extends JFrame implements ActionListener {
         backButton.setEnabled(currentNumber>0);
         forwardButton.setEnabled(currentNumber<listOfPanels.size()-1);
         progressBar.setString(String.format(textForProgressBar, currentNumber+1, quantityOfQuestion));
-        progressBar.setValue(currentNumber);
+        progressBar.setValue(currentNumber+1);
         this.pack();
     }
 
