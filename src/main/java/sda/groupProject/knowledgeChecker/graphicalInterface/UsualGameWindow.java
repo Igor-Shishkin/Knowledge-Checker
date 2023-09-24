@@ -11,7 +11,7 @@ import java.util.List;
 
 public class UsualGameWindow extends JFrame implements ActionListener {
     private final Font MAIN_FONT = new Font("Consolas", Font.PLAIN, 18);
-    private final Color DARK_GREEN = new Color(0x066C00);
+    private final Color DARK_GREEN = new Color(0x13DA00);
     private final int MAX_NUMBER_OF_QUESTION;
     private final int MAX_LENGTH = 60;
     private final int ANSWER_LENGTH = 50;
