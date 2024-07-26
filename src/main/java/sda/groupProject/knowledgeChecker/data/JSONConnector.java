@@ -70,9 +70,9 @@ public class JSONConnector {
     }
 
     private Advancement determineLevel(String advancement) {
-        if (advancement.equals("medium")) {
+        if (advancement.equalsIgnoreCase("medium")) {
             return Advancement.MEDIUM;
-        } else if (advancement.equals("basic")){
+        } else if (advancement.equalsIgnoreCase("basic")){
             return Advancement.BASIC;
         }
         return Advancement.EXPERT;
